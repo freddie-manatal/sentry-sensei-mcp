@@ -1,0 +1,79 @@
+{
+  "mcpServers": {
+    "sentry-sensei-mcp-stdio": {
+      "command": "node",
+      "args": [
+        "/path/to/sentry-sensei-mcp/src/index.js",
+        "--sentryHost",
+        "your-org.sentry.io",
+        "--atlassianDomain",
+        "your-company.atlassian.net",
+        "--organization",
+        "your-org-slug",
+        "--jiraAccessToken",
+        "your-jira-api-token",
+        "--jiraUser",
+        "your-email@company.com"
+      ],
+      "env": {
+        "SENTRY_TOKEN": "your-sentry-token"
+      }
+    },
+    "sentry-sensei-mcp-dev": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:3000/mcp/",
+        "--header",
+        "X-Sentry-Host:${SENTRY_HOST}",
+        "--header",
+        "X-Sentry-Organization:${SENTRY_ORG}",
+        "--header",
+        "X-Sentry-Token:${SENTRY_TOKEN}",
+        "--header",
+        "X-Atlassian-Domain:${ATLASSIAN_DOMAIN}",
+        "--header",
+        "X-Jira-Token:${JIRA_TOKEN}",
+        "--header",
+        "X-Jira-Email:${JIRA_EMAIL}"
+      ],
+      "env": {
+        "SENTRY_HOST": "your-org.sentry.io",
+        "SENTRY_ORG": "your-org-slug",
+        "SENTRY_TOKEN": "your-sentry-token",
+        "ATLASSIAN_DOMAIN": "your-company.atlassian.net",
+        "JIRA_TOKEN": "your-jira-api-token",
+        "JIRA_EMAIL": "your-email@company.com"
+      }
+    },
+    "sentry-sensei-mcp-remote": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sentry-sensei-mcp.onrender.com/mcp",
+        "--header",
+        "X-Sentry-Host:${SENTRY_HOST}",
+        "--header",
+        "X-Sentry-Organization:${SENTRY_ORG}",
+        "--header",
+        "X-Sentry-Token:${SENTRY_TOKEN}",
+        "--header",
+        "X-Atlassian-Domain:${ATLASSIAN_DOMAIN}",
+        "--header",
+        "X-Jira-Token:${JIRA_TOKEN}",
+        "--header",
+        "X-Jira-Email:${JIRA_EMAIL}"
+      ],
+      "env": {
+        "SENTRY_HOST": "your-org.sentry.io",
+        "SENTRY_ORG": "your-org-slug",
+        "SENTRY_TOKEN": "your-sentry-token",
+        "ATLASSIAN_DOMAIN": "your-company.atlassian.net",
+        "JIRA_TOKEN": "your-jira-api-token",
+        "JIRA_EMAIL": "your-email@company.com"
+      }
+    }
+  }
+}
