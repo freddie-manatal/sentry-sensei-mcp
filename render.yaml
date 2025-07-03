@@ -3,7 +3,7 @@ services:
     name: sentry-sensei-mcp
     runtime: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm ci && npm run docs:build
     startCommand: npm start
     envVars:
       - key: NODE_ENV

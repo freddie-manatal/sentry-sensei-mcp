@@ -16,8 +16,7 @@
     "check": "npm run lint && npm run format:check",
     "docs:start": "cd docs && npm start",
     "docs:build": "cd docs && npm run build",
-    "docs:serve": "cd docs && npm run serve",
-    "postinstall": "npm run docs:build"
+    "docs:serve": "cd docs && npm run serve"
   },
   "keywords": [
     "mcp",
