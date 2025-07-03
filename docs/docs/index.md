@@ -26,7 +26,7 @@ Add this to your Claude Desktop or Cursor config (`~/.cursor/mcp.json` or `~/Lib
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:3000/mcp",
+        "https://sentry-sensei-mcp.onrender.com/mcp",
         "--header",
         "X-Sentry-Host:${SENTRY_HOST}",
         "--header",
