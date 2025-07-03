@@ -88,7 +88,7 @@ For local development, use this configuration in your MCP config:
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:3000/api/mcp",
+        "http://localhost:3000//mcp",
         "--header",
         "X-Sentry-Host:${SENTRY_HOST}",
         "--header",
