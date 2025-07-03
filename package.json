@@ -6,14 +6,18 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "nodemon src/index.js",
     "stdio": "node src/index.js",
     "test": "node tests/test-mcp.js",
-    "lint": "eslint src/ tests/",
+    "lint": "eslint src/ tests/ --fix",
     "lint:fix": "eslint src/ tests/ --fix",
     "format": "prettier --write src/ tests/ *.js *.json *.md",
     "format:check": "prettier --check src/ tests/ *.js *.json *.md",
-    "check": "npm run lint && npm run format:check"
+    "check": "npm run lint && npm run format:check",
+    "docs:start": "cd docs && npm start",
+    "docs:build": "cd docs && npm run build",
+    "docs:serve": "cd docs && npm run serve",
+    "postinstall": "npm run docs:build"
   },
   "keywords": [
     "mcp",
@@ -31,8 +35,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.18.2",
-    "highlight.js": "^11.11.1",
-    "markdown-it": "^14.1.0",
     "node-fetch": "^3.3.2",
     "zod": "^3.25.71"
   },
