@@ -25,3 +25,25 @@ export function handleCORSPreflight(req, res) {
   }
   return false;
 }
+
+/**
+ * Get CORS headers as an object (for Netlify or manual use)
+ */
+export function getCORSHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers':
+      'Content-Type, Authorization, X-Sentry-Host, X-Sentry-Organization, X-Sentry-Token, X-Atlassian-Domain, X-Jira-Token, X-Jira-Email',
+  };
+}
+
+/**
+ * Check if request is a CORS preflight (OPTIONS)
+ * @param {Object} req - Request object (Express/Netlify)
+ * @returns {boolean}
+ */
+export function isPreflightRequest(req) {
+  // Express/Next: req.method; Netlify: event.httpMethod
+  return req.method === 'OPTIONS' || req.httpMethod === 'OPTIONS';
+}

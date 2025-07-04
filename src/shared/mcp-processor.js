@@ -1,5 +1,5 @@
 import { TOOL_DEFINITIONS, TOOL_NAMES } from '../tools/index.js';
-import { Logger } from '../utils/index.js';
+import Logger from '../utils/Logger.js';
 import { extractCredentials } from './credentials.js';
 import { createHandlers } from './handlers.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';

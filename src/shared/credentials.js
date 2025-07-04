@@ -1,4 +1,4 @@
-import { Logger } from '../utils/index.js';
+import Logger from '../utils/Logger.js';
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
