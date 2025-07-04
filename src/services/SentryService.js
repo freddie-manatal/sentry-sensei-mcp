@@ -69,10 +69,25 @@ class SentryService {
       limit = 50,
       shortIdLookup = false,
       utc = true,
+      statsPeriod,
+      groupStatsPeriod,
+      query: customQuery,
+      expand,
+      collapse,
+      cursor,
     } = options;
 
     // Build query parts
-    const queryParts = ['is:unresolved'];
+    const queryParts = [];
+
+    // Add custom query if provided, otherwise use default
+    if (customQuery !== undefined) {
+      if (customQuery) {
+        queryParts.push(customQuery);
+      }
+    } else {
+      queryParts.push('is:unresolved');
+    }
 
     if (excludeErrorType) {
       queryParts.push(`!error.type:"${excludeErrorType}"`);
@@ -84,29 +99,40 @@ class SentryService {
 
     const query = queryParts.join(' ');
 
-    // Set date range
-    let startDate = dateFrom;
-    let endDate = dateTo;
-
-    if (!startDate || !endDate) {
-      const range = this.getPreviousWeekRange();
-      startDate = startDate || range.startDate;
-      endDate = endDate || range.endDate;
-    }
-
     // Build URL parameters
     const params = new URLSearchParams({
       sort: sortBy,
       limit: limit.toString(),
       shortIdLookup: shortIdLookup ? '1' : '0',
-      start: `${startDate}`,
-      end: `${endDate}`,
       utc: utc ? 'true' : 'false',
     });
 
     // Add query if not empty
     if (query.trim()) {
       params.append('query', query);
+    }
+
+    // Add statsPeriod if provided (overrides dateFrom/dateTo)
+    if (statsPeriod) {
+      params.append('statsPeriod', statsPeriod);
+    } else {
+      // Set date range if statsPeriod not provided
+      let startDate = dateFrom;
+      let endDate = dateTo;
+
+      if (!startDate || !endDate) {
+        const range = this.getPreviousWeekRange();
+        startDate = startDate || range.startDate;
+        endDate = endDate || range.endDate;
+      }
+
+      params.append('start', startDate);
+      params.append('end', endDate);
+    }
+
+    // Add groupStatsPeriod if provided
+    if (groupStatsPeriod) {
+      params.append('groupStatsPeriod', groupStatsPeriod);
     }
 
     // Add environment if specified
@@ -125,6 +151,21 @@ class SentryService {
       } else {
         params.append('project', project.toString());
       }
+    }
+
+    // Add expand fields if specified
+    if (expand && Array.isArray(expand) && expand.length > 0) {
+      expand.forEach(field => params.append('expand', field));
+    }
+
+    // Add collapse fields if specified
+    if (collapse && Array.isArray(collapse) && collapse.length > 0) {
+      collapse.forEach(field => params.append('collapse', field));
+    }
+
+    // Add cursor if specified
+    if (cursor) {
+      params.append('cursor', cursor);
     }
 
     // Use organization-level issues endpoint

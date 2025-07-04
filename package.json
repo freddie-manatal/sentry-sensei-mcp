@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon server.js",
     "stdio": "node src/index.js",
     "test": "node tests/test-mcp.js",
     "lint": "eslint src/ tests/ --fix",

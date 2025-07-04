@@ -102,7 +102,8 @@ export const TOOL_DEFINITIONS = [
         },
         sortBy: {
           type: 'string',
-          description: 'Sort order for issues: "date" (Last Seen), "new" (First Seen), "trends" (Trends), "freq" (Events), "user" (Users), "inbox" (Date Added). Default: "freq"',
+          description:
+            'Sort order for issues: "date" (Last Seen), "new" (First Seen), "trends" (Trends), "freq" (Events), "user" (Users), "inbox" (Date Added). Default: "freq"',
           enum: ['date', 'freq', 'inbox', 'new', 'trends', 'user'],
         },
         excludeErrorType: {
@@ -124,6 +125,50 @@ export const TOOL_DEFINITIONS = [
         shortIdLookup: {
           type: 'boolean',
           description: 'Enable parsing of issue short IDs in queries. Default: false',
+        },
+        statsPeriod: {
+          type: 'string',
+          description:
+            'The period of time for the query (e.g., "24h", "7d", "1w"). Will override dateFrom and dateTo. Format: number + unit (d=days, h=hours, m=minutes, s=seconds, w=weeks)',
+        },
+        groupStatsPeriod: {
+          type: 'string',
+          description: 'The timeline for group stats presentation',
+          enum: ['14d', '24h', 'auto'],
+        },
+        query: {
+          type: 'string',
+          description:
+            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium]',
+        },
+        expand: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: [
+              'inbox',
+              'integrationIssues',
+              'latestEventHasAttachments',
+              'owners',
+              'pluginActions',
+              'pluginIssues',
+              'sentryAppIssues',
+              'sessions',
+            ],
+          },
+          description: 'Additional data to include in the response',
+        },
+        collapse: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['base', 'filtered', 'lifetime', 'stats', 'unhandled'],
+          },
+          description: 'Fields to remove from the response to improve query performance',
+        },
+        cursor: {
+          type: 'string',
+          description: 'Pointer to the last object fetched and its sort order; used for pagination',
         },
       },
       required: [],

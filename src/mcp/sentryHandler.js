@@ -332,10 +332,16 @@ class SentryHandler {
       environment: args.environment,
       limit: args.limit,
       shortIdLookup: args.shortIdLookup,
+      statsPeriod: args.statsPeriod,
+      groupStatsPeriod: args.groupStatsPeriod,
+      query: args.query,
+      expand: args.expand,
+      collapse: args.collapse,
+      cursor: args.cursor,
     };
 
-    // If relativeDays is provided, calculate the actual dates
-    if (args.relativeDays) {
+    // If relativeDays is provided and statsPeriod is not, calculate the actual dates
+    if (args.relativeDays && !args.statsPeriod) {
       const { dateFrom, dateTo } = this.calculateRelativeDates(args.relativeDays);
       issueOptions.dateFrom = dateFrom;
       issueOptions.dateTo = dateTo;
