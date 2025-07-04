@@ -1,4 +1,4 @@
-const Logger = require('../utils/Logger');
+const { Logger } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
