@@ -1,6 +1,6 @@
-const Logger = require('../../src/utils/Logger.js').default;
-const processMCPRequest  = require('../../src/shared/mcp-processor.js');
-const { getCORSHeaders, isPreflightRequest } = require('../../src/shared/cors.js');
+const Logger = require('../../src/utils/Logger');
+const processMCPRequest  = require('../../src/shared/mcp-processor');
+const { getCORSHeaders, isPreflightRequest } = require('../../src/shared/cors');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 

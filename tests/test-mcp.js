@@ -5,19 +5,15 @@
  * This demonstrates how to interact with the MCP server programmatically
  */
 
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { spawn } = require('child_process');
+const path = require('path');
 
 // Test function to send MCP requests
 function testMCPServer() {
   console.log('🧪 Testing Sentry Sensei MCP Server...\n');
 
   // Start the MCP server process
-  const serverPath = join(__dirname, '..', 'src', 'index.js');
+  const serverPath = path.join(__dirname, '..', 'src', 'index.js');
   const server = spawn('node', [serverPath], {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -49,7 +45,7 @@ function testMCPServer() {
             console.log(`  - ${tool.name}: ${tool.description}`);
           });
         }
-      } catch (e) {
+      } catch {
         console.log('📄 Raw response:', response);
       }
     }

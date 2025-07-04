@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 // Logger class for structured logging
 class Logger {
@@ -123,4 +123,4 @@ class Logger {
   }
 }
 
-export default Logger;
+module.exports = Logger;

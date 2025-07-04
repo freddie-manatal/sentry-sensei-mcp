@@ -1,4 +1,4 @@
-import { Logger } from '../utils/index.js';
+const { Logger } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
@@ -109,4 +109,4 @@ ${JSON.stringify(dateInfo, null, 2)}`,
   }
 }
 
-export default DateTimeHandler;
+module.exports = DateTimeHandler;

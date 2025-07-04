@@ -1,6 +1,6 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { SentryService } from '../services/index.js';
-import { Logger } from '../utils/index.js';
+const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
+const { SentryService } = require('../services/index.js');
+const { Logger } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
@@ -461,4 +461,4 @@ class SentryHandler {
   }
 }
 
-export default SentryHandler;
+module.exports = SentryHandler;

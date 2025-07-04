@@ -1,15 +1,11 @@
-import express from 'express';
-import cors from 'cors';
-import { config } from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { Logger } from './src/utils/index.js';
-import { processMCPRequest } from './src/shared/index.js';
+const express = require('express');
+const cors = require('cors');
+const { config } = require('dotenv');
+const path = require('path');
+const Logger = require('./src/utils/Logger');
+const processMCPRequest = require('./src/shared/mcp-processor');
 
 config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -92,4 +88,4 @@ app.listen(PORT, () => {
   logger.info(`🔧 MCP endpoint: http://localhost:${PORT}/mcp`);
 });
 
-export default app;
+module.exports = app;

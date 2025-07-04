@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from './index.js';
+const TOOL_NAMES = require('./constants');
 
 // Get current date for tool descriptions
 const getCurrentDateInfo = () => {
@@ -12,7 +12,7 @@ const getCurrentDateInfo = () => {
 };
 
 // Tool definitions
-export const TOOL_DEFINITIONS = [
+const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_SENTRY_ORGANIZATIONS,
     description:
@@ -186,7 +186,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_CURRENT_DATETIME,
     description:
-      'Get **detailed** information about a specific Sentry issue (events, tags, stats, etc.). Call this *only if* you need to **deep-dive** or get extra context about an issue already selected from a list. Optional follow-up tool: use it after identifying the issue with GET_SENTRY_ISSUES, when the user specifically asks for details.',
+      'Get current date and time information in various formats. Useful for calculating relative dates, timestamps, and working with date-based queries or operations.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -233,3 +233,5 @@ export const TOOL_DEFINITIONS = [
     },
   },
 ];
+
+module.exports = TOOL_DEFINITIONS;

@@ -1,2 +1,7 @@
-export { default as SentryService } from './SentryService.js';
-export { default as JiraService } from './JiraService.js';
+const SentryService = require('./SentryService');
+const JiraService = require('./JiraService');
+
+module.exports = {
+  SentryService,
+  JiraService,
+};

@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+const fetch = require('node-fetch');
+const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 
 class SentryService {
   constructor(token, domain = 'sentry.io') {
@@ -246,4 +246,4 @@ class SentryService {
   }
 }
 
-export default SentryService;
+module.exports = SentryService;

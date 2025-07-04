@@ -1,4 +1,12 @@
-export { extractCredentials } from './credentials.js';
-export { createHandlers } from './handlers.js';
-export { processMCPRequest } from './mcp-processor.js';
-export { setCORSHeaders, handleCORSPreflight } from './cors.js';
+const { extractCredentials } = require('./credentials.js');
+const { createHandlers } = require('./handlers.js');
+const { processMCPRequest } = require('./mcp-processor.js');
+const { setCORSHeaders, handleCORSPreflight } = require('./cors.js');
+
+module.exports = {
+  extractCredentials,
+  createHandlers,
+  processMCPRequest,
+  setCORSHeaders,
+  handleCORSPreflight,
+};

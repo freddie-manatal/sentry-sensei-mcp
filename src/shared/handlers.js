@@ -1,29 +1,22 @@
-import { SentryHandler, JiraHandler } from '../mcp/index.js';
-import DateTimeHandler from '../mcp/datetimeHandler.js';
+const { SentryService, JiraService } = require('../services/index.js');
+const { DatetimeHandler, SentryHandler, JiraHandler } = require('../mcp/index.js');
 
 /**
- * Create handler instances with the provided credentials
- * @param {Object} credentials - Credentials object containing sentry and jira properties
- * @returns {Object} Object containing sentryHandler and jiraHandler instances
+ * Create service handlers with credentials
+ * @param {Object} credentials - Credentials object
+ * @returns {Object} Service handlers
  */
-export function createHandlers(credentials) {
-  const sentryHandler = new SentryHandler(
-    credentials.sentry.host,
-    credentials.sentry.organization,
-    credentials.sentry.token,
-  );
-
-  const jiraHandler = new JiraHandler(
-    credentials.jira.domain,
-    credentials.jira.token,
-    credentials.jira.email,
-  );
-
-  const datetimeHandler = new DateTimeHandler();
+function createHandlers(credentials) {
+  const sentryService = new SentryService(credentials.sentry);
+  const jiraService = new JiraService(credentials.jira);
 
   return {
-    sentryHandler,
-    jiraHandler,
-    datetimeHandler,
+    sentryHandler: new SentryHandler(sentryService),
+    jiraHandler: new JiraHandler(jiraService),
+    datetimeHandler: new DatetimeHandler(),
   };
 }
+
+module.exports = {
+  createHandlers,
+};

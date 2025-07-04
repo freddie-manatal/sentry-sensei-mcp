@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+function handler(req, res) {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -8,3 +8,5 @@ export default function handler(req, res) {
     version: '1.0.0',
   });
 }
+
+module.exports = handler;

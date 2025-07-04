@@ -1,8 +1,8 @@
-import { TOOL_DEFINITIONS, TOOL_NAMES } from '../tools/index.js';
-import Logger from '../utils/Logger.js';
-import { extractCredentials } from './credentials.js';
-import { createHandlers } from './handlers.js';
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+const { TOOL_DEFINITIONS, TOOL_NAMES } = require('../tools/index.js');
+const { Logger } = require('../utils/index.js');
+const { extractCredentials } = require('./credentials');
+const { createHandlers } = require('./handlers');
+const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
@@ -12,7 +12,7 @@ const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
  * @param {Object} body - Request body
  * @returns {Object} Response object
  */
-export async function processMCPRequest(req, body) {
+async function processMCPRequest(req, body) {
   const { jsonrpc, method, params, id } = body || {};
 
   logger.info('Processing MCP method:', method);
@@ -148,3 +148,5 @@ export async function processMCPRequest(req, body) {
     },
   };
 }
+
+module.exports = processMCPRequest;

@@ -1,5 +1,5 @@
 // Tool names
-export const TOOL_NAMES = {
+const TOOL_NAMES = {
   GET_SENTRY_ORGANIZATIONS: 'get_sentry_organizations',
   GET_SENTRY_PROJECTS: 'get_sentry_projects',
   GET_SENTRY_ISSUES: 'get_sentry_issues',
@@ -7,3 +7,5 @@ export const TOOL_NAMES = {
   GET_CURRENT_DATETIME: 'get_current_datetime',
   GET_SENTRY_ISSUE_DETAILS: 'get_sentry_issue_details',
 };
+
+module.exports = TOOL_NAMES;

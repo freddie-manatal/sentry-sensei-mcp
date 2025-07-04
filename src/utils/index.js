@@ -1,2 +1,7 @@
-export { default as Logger } from './Logger.js';
-export { default as JiraFormatter } from './JiraFormatter.js';
+const Logger = require('./Logger');
+const JiraFormatter = require('./JiraFormatter');
+
+module.exports = {
+  Logger,
+  JiraFormatter,
+};

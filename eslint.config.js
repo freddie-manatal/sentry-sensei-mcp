@@ -1,90 +1,32 @@
-import js from '@eslint/js';
-import prettier from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
-
-export default [
+module.exports = [
   {
-    ignores: [
-      'eslint.config.js',
-      'node_modules/',
-      'dist/',
-      'build/',
-      '*.min.js',
-      'coverage/',
-      '.nyc_output/',
-      'package-lock.json',
-      'yarn.lock',
-    ],
+    ignores: ['node_modules/', 'dist/', 'build/', '*.min.js', 'coverage/'],
   },
-  js.configs.recommended,
   {
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
       globals: {
-        // Node.js globals
         process: 'readonly',
-        Buffer: 'readonly',
         __dirname: 'readonly',
         __filename: 'readonly',
-        console: 'readonly',
-        global: 'readonly',
-        // Web/Node.js APIs
-        fetch: 'readonly',
-        URLSearchParams: 'readonly',
-        AbortController: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        // Common Node.js modules
         require: 'readonly',
         module: 'readonly',
         exports: 'readonly',
       },
     },
-    plugins: {
-      prettier,
-    },
     rules: {
-      ...prettierConfig.rules,
-      'prettier/prettier': [
-        'error',
-        {
-          endOfLine: 'auto',
-          quotes: 'off',
-          singleQuote: true,
-          trailingComma: 'all',
-          printWidth: 100,
-          tabWidth: 2,
-          useTabs: false,
-          bracketSpacing: true,
-          arrowParens: 'avoid',
-        },
-      ],
-      // Additional rules for better code quality
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-console': 'off', // Allow console.log in this project
+      'no-console': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
-      'object-shorthand': 'error',
-      'prefer-arrow-callback': 'error',
-      'prefer-template': 'error',
-      'template-curly-spacing': 'error',
-      'arrow-spacing': 'error',
-      'comma-dangle': ['error', 'always-multiline'],
-      semi: ['error', 'always'],
-      quotes: ['error', 'single', { avoidEscape: true }],
-      // Remove indent rule - let Prettier handle indentation
-      'no-trailing-spaces': 'error',
-      'eol-last': 'error',
     },
   },
   {
-    files: ['tests/**/*.js'],
+    files: ['*.js'],
     rules: {
-      // More relaxed rules for test files
-      'no-unused-vars': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+      'unicorn/prefer-module': 'off',
     },
   },
 ];
