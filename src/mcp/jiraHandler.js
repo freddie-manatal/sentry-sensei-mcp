@@ -1,6 +1,7 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { Logger, JiraFormatter } from '../utils/index.js';
-import { JiraService } from '../services/index.js';
+const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
+const Logger = require('../utils/Logger');
+const JiraFormatter = require('../utils/JiraFormatter');
+const JiraService = require('../services/JiraService');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
@@ -101,4 +102,4 @@ class JiraHandler {
   }
 }
 
-export default JiraHandler;
+module.exports = JiraHandler;

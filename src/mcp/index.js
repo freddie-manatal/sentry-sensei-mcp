@@ -1,2 +1,9 @@
-export { default as SentryHandler } from './sentryHandler.js';
-export { default as JiraHandler } from './jiraHandler.js';
+const SentryHandler = require('./sentryHandler');
+const JiraHandler = require('./jiraHandler');
+const DatetimeHandler = require('./datetimeHandler');
+
+module.exports = {
+  SentryHandler,
+  JiraHandler,
+  DatetimeHandler,
+};

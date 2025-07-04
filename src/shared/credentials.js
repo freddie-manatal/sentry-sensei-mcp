@@ -1,46 +1,51 @@
-import { Logger } from '../utils/index.js';
+const { Logger } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
 /**
- * Extract credentials from request headers and environment variables
+ * Extract credentials from request headers
  * @param {Object} req - Request object
- * @returns {Object} Extracted credentials
+ * @returns {Object} Credentials object
  */
-export function extractCredentials(req) {
+function extractCredentials(req) {
   const headers = req.headers || {};
-
-  // Helper function to get header value (case-insensitive)
-  const getHeader = name => {
-    const lowerName = name.toLowerCase();
-    return headers[lowerName] || headers[name] || headers[name.toUpperCase()];
-  };
+  
+  logger.info('Raw headers received:', Object.keys(headers));
+  logger.info('Header values:', {
+    'x-sentry-host': headers['x-sentry-host'],
+    'x-sentry-organization': headers['x-sentry-organization'],
+    'x-sentry-token': headers['x-sentry-token'] ? '***' : undefined,
+  });
 
   const credentials = {
     sentry: {
-      host: getHeader('x-sentry-host') || process.env.SENTRY_HOST || 'https://sentry.io',
-      organization: getHeader('x-sentry-organization') || process.env.SENTRY_ORGANIZATION,
-      token: getHeader('x-sentry-token') || process.env.SENTRY_TOKEN,
+      host: headers['x-sentry-host'] || process.env.SENTRY_HOST,
+      organization: headers['x-sentry-organization'] || process.env.SENTRY_ORG || process.env.SENTRY_ORGANIZATION,
+      token: headers['x-sentry-token'] || process.env.SENTRY_TOKEN,
     },
     jira: {
-      domain: getHeader('x-atlassian-domain') || process.env.ATLASSIAN_DOMAIN,
-      token: getHeader('x-jira-token') || process.env.JIRA_ACCESS_TOKEN,
-      email: getHeader('x-jira-email') || process.env.JIRA_USER_EMAIL,
+      domain: headers['x-atlassian-domain'] || process.env.ATLASSIAN_DOMAIN,
+      token: headers['x-jira-token'] || process.env.JIRA_TOKEN,
+      email: headers['x-jira-email'] || process.env.JIRA_EMAIL,
     },
   };
 
   logger.debug('Extracted credentials:', {
     sentry: {
       host: credentials.sentry.host,
-      organization: credentials.sentry.organization ? '[REDACTED]' : undefined,
-      token: credentials.sentry.token ? '[REDACTED]' : undefined,
+      organization: credentials.sentry.organization,
+      token: credentials.sentry.token ? '***' : undefined,
     },
     jira: {
       domain: credentials.jira.domain,
-      token: credentials.jira.token ? '[REDACTED]' : undefined,
       email: credentials.jira.email,
+      token: credentials.jira.token ? '***' : undefined,
     },
   });
 
   return credentials;
 }
+
+module.exports = {
+  extractCredentials,
+};

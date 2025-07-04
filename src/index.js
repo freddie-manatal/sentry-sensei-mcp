@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
+const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
+const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const {
   CallToolRequestSchema,
   ErrorCode,
   ListToolsRequestSchema,
   McpError,
-} from '@modelcontextprotocol/sdk/types.js';
-import { config } from 'dotenv';
-import { Logger } from './utils/index.js';
-import { TOOL_NAMES, TOOL_DEFINITIONS } from './tools/index.js';
-import { SentryHandler, JiraHandler } from './mcp/index.js';
+} = require('@modelcontextprotocol/sdk/types.js');
+const { config } = require('dotenv');
+const { Logger } = require('./utils/index.js');
+const { TOOL_NAMES, TOOL_DEFINITIONS } = require('./tools/index.js');
+const { SentryHandler, JiraHandler } = require('./mcp/index.js');
 
 config();
 

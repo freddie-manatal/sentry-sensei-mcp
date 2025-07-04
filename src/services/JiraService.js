@@ -1,4 +1,4 @@
-import { JiraFormatter } from '../utils/index.js';
+const JiraFormatter = require('../utils/JiraFormatter');
 
 class JiraService {
   constructor(atlassianDomain, jiraAccessToken, jiraUserEmail) {
@@ -49,4 +49,4 @@ class JiraService {
   }
 }
 
-export default JiraService;
+module.exports = JiraService;

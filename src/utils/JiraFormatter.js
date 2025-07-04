@@ -171,4 +171,4 @@ class JiraFormatter {
   }
 }
 
-export default JiraFormatter;
+module.exports = JiraFormatter;
