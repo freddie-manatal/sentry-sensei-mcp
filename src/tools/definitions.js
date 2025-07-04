@@ -102,8 +102,8 @@ export const TOOL_DEFINITIONS = [
         },
         sortBy: {
           type: 'string',
-          description: 'Sort order for issues: "freq", "date", "new", "user". Default: "freq"',
-          enum: ['freq', 'date', 'new', 'user'],
+          description: 'Sort order for issues: "date" (Last Seen), "new" (First Seen), "trends" (Trends), "freq" (Events), "user" (Users), "inbox" (Date Added). Default: "freq"',
+          enum: ['date', 'freq', 'inbox', 'new', 'trends', 'user'],
         },
         excludeErrorType: {
           type: 'string',
