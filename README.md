@@ -23,7 +23,7 @@ Add this to your Claude Desktop or Cursor config (`~/.cursor/mcp.json` or `~/Lib
       "args": [
         "-y",
         "mcp-remote",
-        "https://sentry-sensei-mcp.onrender.com/mcp",
+        "https://sentry-sensei-mcp.netlify.app/mcp",
         "--header",
         "X-Sentry-Host:${SENTRY_HOST}",
         "--header",
