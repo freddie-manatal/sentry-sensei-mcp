@@ -1,4 +1,4 @@
-const { SentryService, JiraService } = require('../services/index.js');
+const { JiraService } = require('../services/index.js');
 const { DatetimeHandler, SentryHandler, JiraHandler } = require('../mcp/index.js');
 
 /**
@@ -7,11 +7,14 @@ const { DatetimeHandler, SentryHandler, JiraHandler } = require('../mcp/index.js
  * @returns {Object} Service handlers
  */
 function createHandlers(credentials) {
-  const sentryService = new SentryService(credentials.sentry);
   const jiraService = new JiraService(credentials.jira);
 
   return {
-    sentryHandler: new SentryHandler(sentryService),
+    sentryHandler: new SentryHandler(
+      credentials.sentry.host,
+      credentials.sentry.organization,
+      credentials.sentry.token
+    ),
     jiraHandler: new JiraHandler(jiraService),
     datetimeHandler: new DatetimeHandler(),
   };
