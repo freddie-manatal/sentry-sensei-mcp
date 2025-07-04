@@ -107,6 +107,11 @@ export async function processMCPRequest(req, body) {
           result = await datetimeHandler.getCurrentDateTime(toolArgs);
           break;
 
+        case TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS:
+          logger.info(`🔍 Executing Sentry issue details: ${JSON.stringify(toolArgs)}`);
+          result = await sentryHandler.getSentryIssueDetails(toolArgs);
+          break;
+
         default:
           logger.warn(`❌ Unknown tool: ${toolName}`);
           throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${toolName}`);

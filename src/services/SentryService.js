@@ -6,6 +6,7 @@ class SentryService {
     this.sentryDomain = domain;
     this.sentryToken = token;
     this.apiBase = `https://${domain}/api/0`;
+    this.sentryApiBase = 'https://sentry.io/api/0';
     this.headers = this.getHeaders();
   }
 
@@ -209,6 +210,39 @@ class SentryService {
       endDateDisplay: formatForDisplay(lastSunday),
       rangeStr: `${formatForDisplay(lastMonday)} - ${formatForDisplay(lastSunday)}`,
     };
+  }
+
+  async getIssueDetails(organization, issueId) {
+    const response = await this.fetchJson(
+      `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/`,
+    );
+    return response;
+  }
+
+  async getIssueTags(organization, issueId, environment) {
+    const response = await this.fetchJson(
+      `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/tags/`,
+      {
+        params: {
+          environment,
+          limit: 3,
+          readable: true,
+        },
+      },
+    );
+    return response;
+  }
+
+  async getIssueEvents(organization, environment, event_id, issue_id) {
+    const response = await this.fetchJson(
+      `${this.sentryApiBase}/organizations/${organization}/issues/${issue_id}/events/${event_id}/`,
+      {
+        params: {
+          environment,
+        },
+      },
+    );
+    return response;
   }
 }
 

@@ -125,6 +125,7 @@ The server will be available at `http://localhost:3000/mcp`
 - **get_sentry_organizations** - List your Sentry organizations
 - **get_sentry_projects** - List projects for an organization
 - **get_sentry_issues** - Get issues with filtering options
+- **get_sentry_issue_details**- Get issues details
 - **get_jira_ticket_details** - Get detailed JIRA ticket information
 
 ## Usage in LLM

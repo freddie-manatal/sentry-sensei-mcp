@@ -5,4 +5,5 @@ export const TOOL_NAMES = {
   GET_SENTRY_ISSUES: 'get_sentry_issues',
   GET_JIRA_TICKET_DETAILS: 'get_jira_ticket_details',
   GET_CURRENT_DATETIME: 'get_current_datetime',
+  GET_SENTRY_ISSUE_DETAILS: 'get_sentry_issue_details',
 };

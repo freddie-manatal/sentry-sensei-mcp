@@ -354,6 +354,111 @@ class SentryHandler {
 
     return this.fetchIssues(sentryService, organization, issueOptions);
   }
+
+  async getSentryIssueDetails(args) {
+    const sentryService = this.createSentryService(args);
+    const organization = this.getOrganization(args);
+    const issueId = args.issueId;
+    try {
+      const issueDetails = await sentryService.getIssueDetails(organization, issueId);
+      const issueTags = args.includeTags
+        ? await sentryService.getIssueTags(organization, issueId, args.environment)
+        : null;
+
+      // Format the issue details
+      const formattedIssue = {
+        id: issueDetails.id,
+        shareId: issueDetails.shareId,
+        shortId: issueDetails.shortId,
+        title: issueDetails.title,
+        culprit: issueDetails.culprit,
+        permalink: issueDetails.permalink,
+        logger: issueDetails.logger,
+        level: issueDetails.level,
+        status: issueDetails.status,
+        statusDetails: issueDetails.statusDetails,
+        substatus: issueDetails.substatus,
+        isPublic: issueDetails.isPublic,
+        platform: issueDetails.platform,
+        type: issueDetails.type,
+        issueType: issueDetails.issueType,
+        count: issueDetails.count,
+        userCount: issueDetails.userCount || 0,
+        firstSeen: issueDetails.firstSeen,
+        lastSeen: issueDetails.lastSeen,
+        numComments: issueDetails.numComments,
+        assignedTo: issueDetails.assignedTo,
+        isBookmarked: issueDetails.isBookmarked,
+        isSubscribed: issueDetails.isSubscribed,
+        subscriptionDetails: issueDetails.subscriptionDetails,
+        hasSeen: issueDetails.hasSeen,
+        annotations: issueDetails.annotations,
+        project: issueDetails.project
+          ? {
+              id: issueDetails.project.id,
+              name: issueDetails.project.name,
+              slug: issueDetails.project.slug,
+              platform: issueDetails.project.platform,
+            }
+          : null,
+        metadata: issueDetails.metadata
+          ? {
+              type: issueDetails.metadata.type,
+              value: issueDetails.metadata.value,
+              filename: issueDetails.metadata.filename,
+              function: issueDetails.metadata.function,
+              title: issueDetails.metadata.title,
+              severity: issueDetails.metadata.severity,
+              initial_priority: issueDetails.metadata.initial_priority,
+            }
+          : null,
+        tags: issueTags,
+      };
+
+      // Get current date info for context
+      const currentDateInfo = this.getCurrentDateInfo();
+
+      // Build annotation summary if present
+      let annotationText = '';
+      if (formattedIssue.annotations && formattedIssue.annotations.length > 0) {
+        annotationText = '\n\n**JIRA Links:**\n';
+        formattedIssue.annotations.forEach(annotation => {
+          annotationText += `→ ${annotation.displayName}: ${annotation.url}\n`;
+        });
+      } else {
+        annotationText = '\n\n**JIRA Links:** No linked JIRA tickets found.';
+      }
+
+      // Build the formatted text response
+      const responseText = [
+        `**Current Date/Time:** ${currentDateInfo.currentDateTime} (${currentDateInfo.timezone})\n`,
+        `**Issue:** ${formattedIssue.shortId || formattedIssue.id} - ${formattedIssue.title}`,
+        `**Status:** ${formattedIssue.status}`,
+        `**Level:** ${formattedIssue.level}`,
+        `**First Seen:** ${formattedIssue.firstSeen}`,
+        `**Last Seen:** ${formattedIssue.lastSeen}`,
+        `**Event Count:** ${formattedIssue.count}`,
+        `**User Count:** ${formattedIssue.userCount}`,
+        `**Project:** ${formattedIssue.project ? formattedIssue.project.name : 'Unknown'}`,
+        `**Platform:** ${formattedIssue.platform}`,
+        annotationText,
+        '\n**Detailed Information:**',
+        JSON.stringify(formattedIssue, null, 2),
+      ].join('\n');
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: responseText,
+          },
+        ],
+      };
+    } catch (error) {
+      logger.error('Error fetching Sentry issue details:', error);
+      throw error;
+    }
+  }
 }
 
 export default SentryHandler;

@@ -51,25 +51,25 @@ export const TOOL_DEFINITIONS = [
         project: {
           oneOf: [
             {
-              type: 'string',
-              description: 'Single project id',
+              type: 'number',
+              description: 'Single project ID (e.g., 123456)',
             },
             {
               type: 'array',
               items: {
-                oneOf: [{ type: 'string' }, { type: 'number' }],
+                type: 'number',
               },
-              description: 'Array of project IDs',
+              description: 'Array of project IDs (e.g., [123456, 789012])',
             },
           ],
           description:
-            'Project ID or array of project IDs (optional - gets all projects if not provided)',
+            'Project ID or array of project IDs (optional - gets all projects if not provided). Use projectIds to get issues for a specific project.',
         },
         environment: {
           oneOf: [
             {
               type: 'string',
-              description: 'Single environment name',
+              description: 'Single environment name (e.g., "production", "staging", "**pr**")',
             },
             {
               type: 'array',
@@ -80,21 +80,7 @@ export const TOOL_DEFINITIONS = [
             },
           ],
           description:
-            "Environment name(s) to filter by (e.g., 'production', ['production', 'staging'])",
-        },
-        dateFrom: {
-          type: 'string',
-          description: `Start date for issues (YYYY-MM-DDT00:00:00 format). For relative dates, calculate from current date: ${getCurrentDateInfo().currentDate}`,
-        },
-        dateTo: {
-          type: 'string',
-          description: `End date for issues (YYYY-MM-DDT23:59:59 format). For relative dates, calculate from current date: ${getCurrentDateInfo().currentDate}`,
-        },
-        relativeDays: {
-          type: 'integer',
-          description: `Get issues from the last N days from today (${getCurrentDateInfo().currentDate}). This will automatically set dateFrom and dateTo. Use this for queries like "last 2 days", "last week" (7 days), etc.`,
-          minimum: 1,
-          maximum: 365,
+            "Environment name(s) to filter by (e.g., 'production', ['production', 'staging', '**pr**'])",
         },
         utc: {
           type: 'boolean',
@@ -130,6 +116,14 @@ export const TOOL_DEFINITIONS = [
           type: 'string',
           description:
             'The period of time for the query (e.g., "24h", "7d", "1w"). Will override dateFrom and dateTo. Format: number + unit (d=days, h=hours, m=minutes, s=seconds, w=weeks)',
+        },
+        dateFrom: {
+          type: 'string',
+          description: `Start date for issues (YYYY-MM-DDT00:00:00 format). For relative dates, calculate from current date: ${getCurrentDateInfo().currentDate}`,
+        },
+        dateTo: {
+          type: 'string',
+          description: `End date for issues (YYYY-MM-DDT23:59:59 format). For relative dates, calculate from current date: ${getCurrentDateInfo().currentDate}`,
         },
         groupStatsPeriod: {
           type: 'string',
@@ -192,7 +186,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_CURRENT_DATETIME,
     description:
-      'Get current date and time information for accurate date calculations and context when working with time-sensitive queries or generating reports',
+      'Get **detailed** information about a specific Sentry issue (events, tags, stats, etc.). Call this *only if* you need to **deep-dive** or get extra context about an issue already selected from a list. Optional follow-up tool: use it after identifying the issue with GET_SENTRY_ISSUES, when the user specifically asks for details.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -209,6 +203,33 @@ export const TOOL_DEFINITIONS = [
         },
       },
       required: [],
+    },
+  },
+  {
+    name: TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
+    description:
+      'Get comprehensive details about a specific Sentry issue including events, tags, stats, and related data. Useful for deep-diving into specific issues, analyzing error patterns, and gathering context for debugging.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        organization: {
+          type: 'string',
+          description: 'Organization slug (optional - uses default if not provided)',
+        },
+        issueId: {
+          type: 'string',
+          description: 'Issue ID (e.g., "5829644011")',
+        },
+        includeTags: {
+          type: 'boolean',
+          description: 'Include tags in the response if available. Default: false',
+        },
+        environment: {
+          type: 'string',
+          description: 'Environment name (e.g., "production", "staging", "**pr**")',
+        },
+      },
+      required: ['organization', 'issueId'],
     },
   },
 ];

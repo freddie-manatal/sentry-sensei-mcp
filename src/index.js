@@ -129,6 +129,7 @@ class SentryMCPServer {
         this.logToolSuccess(name, startTime);
         return result;
       } catch (error) {
+        console.error('Error:', error);
         this.logToolError(name, startTime, error);
         throw this.wrapToolError(name, error);
       }
@@ -145,6 +146,8 @@ class SentryMCPServer {
         return await this.sentryHandler.getIssues(args);
       case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
         return await this.jiraHandler.getJiraTicketDetails(args.ticketKey);
+      case TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS:
+        return await this.sentryHandler.getSentryIssueDetails(args);
       default:
         throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
     }
