@@ -72,7 +72,6 @@ build/
 
 !output
 output/*.md
-.vercel
 
 # Local Netlify folder
 .netlify
