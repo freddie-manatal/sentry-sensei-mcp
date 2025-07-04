@@ -1,5 +1,5 @@
-const Logger = require('../../src/utils/Logger');
-const processMCPRequest  = require('../../src/shared/mcp-processor');
+const { Logger } = require('../../src/utils/index.js');
+const { processMCPRequest } = require('../../src/shared/index.js');
 const { getCORSHeaders, isPreflightRequest } = require('../../src/shared/cors');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
@@ -16,6 +16,31 @@ exports.handler = async function handler(event, _context) {
       statusCode: 200,
       headers,
       body: '',
+    };
+  }
+
+  if (event.httpMethod === 'GET') {
+    // Handle GET requests for MCP endpoint discovery
+    return {
+      statusCode: 200,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        result: {
+          protocolVersion: '2024-11-05',
+          capabilities: {
+            tools: {},
+            resources: {},
+          },
+          serverInfo: {
+            name: 'sentry-sensei-mcp',
+            version: '1.0.0',
+          },
+        },
+      }),
     };
   }
 
