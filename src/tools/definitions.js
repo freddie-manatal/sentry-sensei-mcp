@@ -1,4 +1,4 @@
-const TOOL_NAMES = require('./constants');
+const { TOOL_NAMES } = require('./constants');
 
 // Get current date for tool descriptions
 const getCurrentDateInfo = () => {

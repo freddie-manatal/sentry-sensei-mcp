@@ -13,7 +13,7 @@ class TokenCounter {
    */
   constructor(model = 'default', encoding = null) {
     this.model = model;
-    
+
     // Default to cl100k_base if no encoding specified
     let encodingNameToUse = encoding || 'cl100k_base';
 

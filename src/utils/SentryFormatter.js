@@ -47,7 +47,12 @@ class SentryFormatter {
   /**
    * Format Sentry issue details into a compact, LLM-friendly structure.
    */
-  static formatIssueDetails(issueDetails, tagsArray = null, latestEvent = null, checkDeepDetails = false) {
+  static formatIssueDetails(
+    issueDetails,
+    tagsArray = null,
+    latestEvent = null,
+    checkDeepDetails = false,
+  ) {
     if (!issueDetails) return null;
 
     const formatted = {
@@ -96,7 +101,7 @@ class SentryFormatter {
       formatted.shareId = issueDetails.shareId;
       formatted.shortId = issueDetails.shortId;
       formatted.stats = issueDetails.stats;
-      
+
       // Add user data if available
       if (issueDetails.user) {
         formatted.user = {
@@ -106,7 +111,7 @@ class SentryFormatter {
           ipAddress: issueDetails.user.ipAddress,
         };
       }
-      
+
       // Add release data if available
       if (issueDetails.release) {
         formatted.release = {
@@ -174,7 +179,9 @@ class SentryFormatter {
 
     const lines = [];
     if (currentDateInfo) {
-      lines.push(`Current Date/Time: ${currentDateInfo.currentDateTime} (${currentDateInfo.timezone})\n`);
+      lines.push(
+        `Current Date/Time: ${currentDateInfo.currentDateTime} (${currentDateInfo.timezone})\n`,
+      );
     }
 
     lines.push(`Issue: ${issueObj.shortId || issueObj.id} - ${issueObj.title}`);
@@ -214,7 +221,11 @@ class SentryFormatter {
       if (issueObj.release.dateReleased) lines.push(`Released: ${issueObj.release.dateReleased}`);
     }
 
-    if (issueObj.isUnhandled !== undefined || issueObj.hasSeen !== undefined || issueObj.numComments !== undefined) {
+    if (
+      issueObj.isUnhandled !== undefined ||
+      issueObj.hasSeen !== undefined ||
+      issueObj.numComments !== undefined
+    ) {
       lines.push('\nAdditional Status:');
       if (issueObj.isUnhandled !== undefined) lines.push(`Unhandled: ${issueObj.isUnhandled}`);
       if (issueObj.hasSeen !== undefined) lines.push(`Seen: ${issueObj.hasSeen}`);

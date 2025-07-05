@@ -227,113 +227,205 @@ class SentryHandler {
 
   // Get issues
   async getIssues(args) {
-    const sentryService = this.createSentryService(args);
-    const organization = this.getOrganization(args);
-
-    if (!organization && !args.organization) {
-      throw new McpError(
-        ErrorCode.InvalidParams,
-        'Organization is required for fetching issues. Provide it as a parameter or set a default organization.',
-      );
-    }
-
-    // Handle relativeDays parameter to auto-calculate dates
-    const issueOptions = {
-      project: args.project,
-      dateFrom: args.dateFrom,
-      dateTo: args.dateTo,
-      sortBy: args.sortBy,
-      excludeErrorType: args.excludeErrorType,
-      errorMessage: args.errorMessage,
-      environment: args.environment,
-      limit: args.limit,
-      statsPeriod: args.statsPeriod,
-      groupStatsPeriod: args.groupStatsPeriod,
-      query: args.query,
-      expand: args.expand,
-      collapse: args.collapse,
-      cursor: args.cursor,
-    };
-
-    // If relativeDays is provided and statsPeriod is not, calculate the actual dates
-    if (args.relativeDays && !args.statsPeriod) {
-      const { dateFrom, dateTo } = this.calculateRelativeDates(args.relativeDays);
-      issueOptions.dateFrom = dateFrom;
-      issueOptions.dateTo = dateTo;
-      issueOptions.relativeDaysUsed = args.relativeDays; // Track this for display
-
-      logger.info(
-        `📅 Using relative date range: last ${args.relativeDays} days (${dateFrom} to ${dateTo})`,
-      );
-    }
-
-    const response = await this.fetchIssues(sentryService, organization, issueOptions);
-    return this.getTokenCounter(args).addTokenCounts(response, args);
-  }
-
-  async getSentryIssueDetails(args) {
-    const sentryService = this.createSentryService(args);
-    const {
-      issueId,
-      includeTags,
-      environment,
-      trace,
-      checkDeepDetails,
-    } = args;
-
     try {
-      // Fetch issue details
-      logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
-      const issueDetails = await sentryService.getIssueDetails(this.organization, issueId);
-      logger.info(`✅ Fetched details for issue: ${issueId}`);
+      const sentryService = this.createSentryService(args);
+      const organization = this.getOrganization(args);
 
-      // Always fetch tags if checkDeepDetails is true
-      let tags = null;
-      if (includeTags || checkDeepDetails) {
-        try {
-          logger.info(`🏷️ Fetching tags for issue: ${issueId}`);
-          tags = await sentryService.getIssueTags(this.organization, issueId, environment);
-          logger.info(`✅ Fetched tags for issue: ${issueId}`);
-        } catch (e) {
-          logger.warn(`Could not fetch tags for issue ${issueId}: ${e.message}`);
-        }
+      if (!organization && !args.organization) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          'Organization is required for fetching issues. Provide it as a parameter or set a default organization.',
+        );
       }
 
-      // Always fetch latest event if checkDeepDetails is true
-      let latestEvent = null;
-      if (trace || checkDeepDetails) {
-        try {
-          logger.info(`📄 Fetching latest event for issue ${issueId} to get stacktrace.`);
-          latestEvent = await sentryService.getLatestEventForIssue(this.organization, issueId);
-          logger.info(`✅ Fetched latest event for issue ${issueId}.`);
-        } catch (e) {
-          logger.warn(`Could not fetch latest event for issue ${issueId}: ${e.message}`);
-          // Continue without stacktrace
-        }
+      // Handle relativeDays parameter to auto-calculate dates
+      const issueOptions = {
+        project: args.project,
+        dateFrom: args.dateFrom,
+        dateTo: args.dateTo,
+        sortBy: args.sortBy,
+        excludeErrorType: args.excludeErrorType,
+        errorMessage: args.errorMessage,
+        environment: args.environment,
+        limit: args.limit,
+        statsPeriod: args.statsPeriod,
+        groupStatsPeriod: args.groupStatsPeriod,
+        query: args.query,
+        expand: args.expand,
+        collapse: args.collapse,
+        cursor: args.cursor,
+      };
+
+      // If relativeDays is provided and statsPeriod is not, calculate the actual dates
+      if (args.relativeDays && !args.statsPeriod) {
+        const { dateFrom, dateTo } = this.calculateRelativeDates(args.relativeDays);
+        issueOptions.dateFrom = dateFrom;
+        issueOptions.dateTo = dateTo;
+        issueOptions.relativeDaysUsed = args.relativeDays;
+        logger.info(
+          `📅 Using relative date range: last ${args.relativeDays} days (${dateFrom} to ${dateTo})`,
+        );
       }
 
-      // Format with SentryFormatter
-      const currentDateInfo = this.getCurrentDateInfo();
-      const formattedIssue = SentryFormatter.formatIssueDetails(
-        issueDetails,
-        tags,
-        latestEvent,
-        checkDeepDetails // Pass checkDeepDetails to formatter
-      );
-      const markdown = SentryFormatter.issueToMarkdown(formattedIssue, currentDateInfo);
+      try {
+        const response = await this.fetchIssues(sentryService, organization, issueOptions);
+        return this.getTokenCounter(args).addTokenCounts(response, args);
+      } catch (error) {
+        // Handle specific error cases
+        if (error.status === 400) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Invalid request. Please check your query parameters.\nDetails: ${error.message}\n\nTip: Make sure the issue ID exists and you have permission to view it.`,
+              },
+            ],
+          };
+        }
+        if (error.status === 401 || error.status === 403) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Authentication failed. Please check your Sentry credentials and permissions.\nDetails: ${error.message}`,
+              },
+            ],
+          };
+        }
+        if (error.status === 404) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Issue not found. The requested issue may have been deleted or you may not have access to it.\nDetails: ${error.message}`,
+              },
+            ],
+          };
+        }
+        if (error.status === 500) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Sentry server error. Please try again later.\nDetails: ${error.message}`,
+              },
+            ],
+          };
+        }
 
-      const response = {
+        // Generic error handler
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching Sentry issues: ${error.message}\n\nPlease try again or contact support if the issue persists.`,
+            },
+          ],
+        };
+      }
+    } catch (error) {
+      logger.error(`Failed to process Sentry request: ${error.message}`);
+      return {
         content: [
           {
             type: 'text',
-            text: `${markdown}\n\nDetailed Information:\n${JSON.stringify(formattedIssue, null, 2)}`,
+            text: `Failed to process your request: ${error.message}\n\nPlease check your parameters and try again.`,
           },
         ],
       };
-      return this.getTokenCounter(args).addTokenCounts(response, args);
+    }
+  }
+
+  async getSentryIssueDetails(args) {
+    try {
+      const sentryService = this.createSentryService(args);
+      const { issueId, includeTags, environment, trace, checkDeepDetails } = args;
+
+      try {
+        logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
+        const issueDetails = await sentryService.getIssueDetails(this.organization, issueId);
+        logger.info(`✅ Fetched details for issue: [REDACTED]`);
+
+        let tags = null;
+        let latestEvent = null;
+
+        if (includeTags || checkDeepDetails) {
+          try {
+            tags = await sentryService.getIssueTags(this.organization, issueId, environment);
+          } catch (e) {
+            logger.warn(`Could not fetch tags: ${e.message}`);
+          }
+        }
+
+        if (trace || checkDeepDetails) {
+          try {
+            latestEvent = await sentryService.getLatestEventForIssue(this.organization, issueId);
+          } catch (e) {
+            logger.warn(`Could not fetch latest event: ${e.message}`);
+          }
+        }
+
+        const currentDateInfo = this.getCurrentDateInfo();
+        const formattedIssue = SentryFormatter.formatIssueDetails(
+          issueDetails,
+          tags,
+          latestEvent,
+          checkDeepDetails,
+        );
+        const markdown = SentryFormatter.issueToMarkdown(formattedIssue, currentDateInfo);
+
+        const response = {
+          content: [
+            {
+              type: 'text',
+              text: `${markdown}\n\nDetailed Information:\n${JSON.stringify(formattedIssue, null, 2)}`,
+            },
+          ],
+        };
+        return this.getTokenCounter(args).addTokenCounts(response, args);
+      } catch (error) {
+        // Handle specific error cases
+        if (error.status === 404) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Issue ${issueId} not found. The issue may have been deleted or you may not have access to it.`,
+              },
+            ],
+          };
+        }
+        if (error.status === 401 || error.status === 403) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Authentication failed. Please check your Sentry credentials and permissions.`,
+              },
+            ],
+          };
+        }
+
+        // Generic error handler
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching issue details: ${error.message}\n\nPlease try again or contact support if the issue persists.`,
+            },
+          ],
+        };
+      }
     } catch (error) {
-      logger.error('Error fetching Sentry issue details:', error);
-      throw error;
+      logger.error(`Error in getSentryIssueDetails: ${error.message}`);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Failed to process your request: ${error.message}\n\nPlease check your parameters and try again.`,
+          },
+        ],
+      };
     }
   }
 }

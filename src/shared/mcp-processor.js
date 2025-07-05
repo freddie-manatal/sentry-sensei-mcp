@@ -1,4 +1,4 @@
-const { TOOL_DEFINITIONS, TOOL_NAMES } = require('../tools/index.js');
+const { TOOL_DEFINITIONS, TOOL_NAMES, ENABLED_TOOLS } = require('../tools/index.js');
 const { Logger } = require('../utils/index.js');
 const { extractCredentials } = require('./credentials');
 const { createHandlers } = require('./handlers');
@@ -81,12 +81,13 @@ async function processMCPRequest(req, body) {
 
   if (method === 'tools/list') {
     logger.info('Listing available tools');
+
     return {
       status: 200,
       body: {
         jsonrpc: '2.0',
         result: {
-          tools: TOOL_DEFINITIONS,
+          tools: TOOL_DEFINITIONS.filter(tool => ENABLED_TOOLS.includes(tool.name)),
         },
         id,
       },
