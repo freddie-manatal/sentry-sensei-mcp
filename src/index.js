@@ -1,17 +1,7 @@
 #!/usr/bin/env node
 
-const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
-const {
-  CallToolRequestSchema,
-  ErrorCode,
-  ListToolsRequestSchema,
-  McpError,
-} = require('@modelcontextprotocol/sdk/types.js');
 const { config } = require('dotenv');
 const { Logger } = require('./utils/index.js');
-const { TOOL_NAMES, TOOL_DEFINITIONS, ENABLED_TOOLS } = require('./tools/index.js');
-const { SentryHandler, JiraHandler } = require('./mcp/index.js');
 
 config();
 
@@ -65,136 +55,28 @@ const CLI_JIRA_ACCESS_TOKEN = getArgValue('--jiraAccessToken');
 const CLI_ATLASSIAN_DOMAIN = getArgValue('--atlassianDomain');
 const CLI_JIRA_USER_EMAIL = getArgValue('--jiraUserEmail');
 
-class SentryMCPServer {
-  constructor() {
-    this.server = new Server(
-      {
-        name: 'sentry-sensei-mcp',
-        version: '1.0.0',
-      },
-      {
-        capabilities: {
-          tools: {},
-        },
-      },
-    );
+// Parse CLI arguments for credential context
+const credentialContext = {
+  CLI_TOKEN,
+  CLI_SENTRY_HOST,
+  CLI_ORGANIZATION,
+  CLI_JIRA_ACCESS_TOKEN,
+  CLI_ATLASSIAN_DOMAIN,
+  CLI_JIRA_USER_EMAIL,
+};
 
-    // Initialize Sentry handler
-    this.sentryHandler = new SentryHandler(
-      CLI_SENTRY_HOST || 'sentry.io',
-      CLI_ORGANIZATION,
-      CLI_TOKEN,
-    );
+// Start the server using new transport
+const { StdioTransport } = require('./server/transports/stdio.js');
 
-    // Initialize Jira handler
-    this.jiraHandler = new JiraHandler(
-      CLI_ATLASSIAN_DOMAIN,
-      CLI_JIRA_ACCESS_TOKEN,
-      CLI_JIRA_USER_EMAIL,
-    );
+const transport = new StdioTransport({
+  serverInfo: {
+    name: 'sentry-sensei-mcp',
+    version: '1.0.0',
+  },
+  credentials: credentialContext,
+});
 
-    this.setupErrorHandling();
-    this.setupToolHandlers();
-  }
-
-  setupErrorHandling() {
-    this.server.onerror = error => logger.error('[MCP Error]', error);
-    process.on('SIGINT', async () => {
-      logger.info('Shutting down MCP server...');
-      await this.server.close();
-      process.exit(0);
-    });
-  }
-
-  setupToolHandlers() {
-    this.setupListToolsHandler();
-    this.setupCallToolHandler();
-  }
-
-  setupListToolsHandler() {
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return { tools: TOOL_DEFINITIONS.filter(tool => ENABLED_TOOLS.includes(tool.name)) };
-    });
-  }
-
-  setupCallToolHandler() {
-    this.server.setRequestHandler(CallToolRequestSchema, async request => {
-      const { name, arguments: args } = request.params;
-      const startTime = Date.now();
-
-      this.logToolStart(name, args);
-
-      try {
-        const result = await this.handleToolCall(name, args);
-        this.logToolSuccess(name, startTime);
-        return result;
-      } catch (error) {
-        console.error('Error:', error);
-        this.logToolError(name, startTime, error);
-        throw this.wrapToolError(name, error);
-      }
-    });
-  }
-
-  async handleToolCall(name, args) {
-    switch (name) {
-      case TOOL_NAMES.GET_SENTRY_ORGANIZATIONS:
-        return await this.sentryHandler.getOrganizations(args);
-      case TOOL_NAMES.GET_SENTRY_PROJECTS:
-        return await this.sentryHandler.getProjects(args);
-      case TOOL_NAMES.GET_SENTRY_ISSUES:
-        return await this.sentryHandler.getIssues(args);
-      case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
-        return await this.jiraHandler.getJiraTicketDetails(args);
-      case TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS:
-        return await this.sentryHandler.getSentryIssueDetails(args);
-      default:
-        throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
-    }
-  }
-
-  logToolStart(name, args) {
-    logger.info(`🔧 Tool called: ${name}`);
-    logger.debug('📋 Tool parameters:', args);
-  }
-
-  logToolSuccess(name, startTime) {
-    const elapsed = Date.now() - startTime;
-    logger.info(`✅ Tool ${name} completed successfully in ${elapsed}ms`);
-  }
-
-  logToolError(name, startTime, error) {
-    const elapsed = Date.now() - startTime;
-    logger.error(`❌ Tool ${name} failed after ${elapsed}ms:`, error.message);
-  }
-
-  wrapToolError(name, error) {
-    if (error instanceof McpError) {
-      return error;
-    }
-    return new McpError(ErrorCode.InternalError, `Error executing tool ${name}: ${error.message}`);
-  }
-
-  async run() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-
-    // Only log to stderr in non-MCP mode, or to log file in MCP mode
-    if (!logger.isMCPMode()) {
-      console.error('Sentry Sensei MCP server running on stdio');
-    } else {
-      // TODO: Add MCP mode logging to a file
-      logger.info('Sentry Sensei MCP server started in MCP mode');
-      if (logger.getLogFilePath()) {
-        logger.info(`📁 Logs are being written to: ${logger.getLogFilePath()}`);
-      }
-    }
-  }
-}
-
-// Start the server
-const server = new SentryMCPServer();
-server.run().catch(error => {
+transport.start().catch(error => {
   if (logger.isMCPMode()) {
     logger.error('Server startup failed:', error);
   } else {

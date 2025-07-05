@@ -8,7 +8,7 @@ class JiraFormatter {
     const summary = fields.summary || 'No summary available';
     const description = (
       this.extractTextFromDocument(fields.description) || 'No description available'
-    ).slice(0, 1000); // truncate to 1000 chars
+    ).slice(0, deepDetails ? 1000 : 500); // 500 chars in standard mode, 1000 in deep mode
     const status = fields.status?.name || 'Unknown';
     const priority = fields.priority?.name || 'Unknown';
     const issueType = fields.issuetype?.name || 'Unknown';
@@ -18,12 +18,12 @@ class JiraFormatter {
     const updated = fields.updated ? new Date(fields.updated).toLocaleDateString() : 'Unknown';
     const timeSpent = fields.timespent ? this.formatTimeSpent(fields.timespent) : 'None';
 
-    // Only last 3 comments, each truncated to 300 chars unless deepDetails is true
+    // Token-optimized comments: 2 in standard mode, 5 in deep mode
     const recentComments = deepDetails
-      ? this.getRecentComments(fields.comment, 10)
-      : (this.getRecentComments(fields.comment, 3) || []).map(c => ({
+      ? this.getRecentComments(fields.comment, 5)
+      : (this.getRecentComments(fields.comment, 2) || []).map(c => ({
           ...c,
-          body: c.body ? c.body.slice(0, 300) : 'No comment body',
+          body: c.body ? c.body.slice(0, 200) : 'No comment body', // Reduced from 300 to 200
         }));
 
     return {
@@ -54,10 +54,10 @@ class JiraFormatter {
     response += `Priority: ${data.priority}\n`;
     response += `Type: ${data.issueType}\n`;
     response += `Assignee: ${data.assignee}\n`;
-    response += `Reporter: ${data.reporter}\n`;
+    // Reduce fields in standard mode - reporter, time tracking often not critical
+    if (data.assignee !== 'Unassigned') response += `Reporter: ${data.reporter}\n`;
     response += `Created: ${data.created}\n`;
     response += `Updated: ${data.updated}\n`;
-    response += `Time Spent: ${data.timeSpent}\n`;
     response += `URL: ${data.url}\n\n`;
 
     response += `Description:\n${data.description}\n\n`;

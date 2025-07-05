@@ -15,8 +15,7 @@ const getCurrentDateInfo = () => {
 const SHARED_PROPERTIES = {
   model: {
     type: 'string',
-    description:
-      'Required: Tell me the model you are using for this request and add model id or model name',
+    description: '[Required] Model identifier (e.g., "claude-xxxx", "gpt -xxxx","claude-xxxx")',
   },
 };
 
@@ -24,8 +23,7 @@ const SHARED_PROPERTIES = {
 const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_SENTRY_ORGANIZATIONS,
-    description:
-      'Get list of Sentry organizations that the authenticated user has access to, including organization details, status, and available features.',
+    description: 'List Sentry organizations accessible to the authenticated user.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -36,8 +34,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: TOOL_NAMES.GET_SENTRY_PROJECTS,
-    description:
-      'Get list of Sentry projects for an organization, including project details, platform information, team assignments, and access permissions. Essential for identifying the correct project before querying issues.',
+    description: 'List projects in a Sentry organization with their IDs, names, and platforms.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -48,7 +45,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: TOOL_NAMES.GET_SENTRY_ISSUES,
-    description: `Get list of Sentry issues for an organization and project(s). Supports filtering by environment, date ranges, error types, and sorting options. Use this to analyze error trends, investigate specific issues, or generate reports. Returns JIRA ticket links when available - if issues have linked JIRA tickets, follow up with GET_JIRA_TICKET_DETAILS to get comprehensive issue context. CURRENT DATE: ${getCurrentDateInfo().currentDate} (${getCurrentDateInfo().year}). Use this current date to calculate relative dates like 'last 2 days', 'this week', etc.`,
+    description: `Get list of Sentry issues with filtering options. IMPORTANT: First call GET_SENTRY_PROJECTS to get project IDs before using this tool. Supports environment, date range, error type, and query filtering. CURRENT DATE: ${getCurrentDateInfo().currentDate}`,
     inputSchema: {
       type: 'object',
       properties: {
@@ -68,7 +65,7 @@ const TOOL_DEFINITIONS = [
             },
           ],
           description:
-            'Project ID or array of project IDs (optional - gets all projects if not provided). Project IDs must be the full numeric ID, not the shortId(PROJECT-NAME-XXXX), name, slug.',
+            'Project ID or array of project IDs. Must be numeric IDs, not shortId or name.',
         },
         environment: {
           oneOf: [
@@ -84,8 +81,7 @@ const TOOL_DEFINITIONS = [
               description: 'Array of environment names',
             },
           ],
-          description:
-            "Environment name(s) to filter by (e.g., 'production', ['production', 'staging', '**pr**'])",
+          description: 'Environment name(s) to filter by.',
         },
         utc: {
           type: 'boolean',
@@ -114,7 +110,7 @@ const TOOL_DEFINITIONS = [
         },
         limit: {
           type: 'integer',
-          description: 'Maximum number of issues to return (1-100). Default: 50',
+          description: 'Maximum number of issues to return (1-100). Default: 10',
           minimum: 1,
           maximum: 100,
         },
@@ -177,7 +173,7 @@ const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_JIRA_TICKET_DETAILS,
     description:
-      'Get detailed information about a JIRA ticket including summary, status, assignee, comments, and progress updates. Returns the last 5 comments to help analyze ticket progression and next steps.',
+      'Get JIRA ticket details including summary, status, assignee, and recent comments.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -188,7 +184,9 @@ const TOOL_DEFINITIONS = [
         },
         deepDetails: {
           type: 'boolean',
-          description: 'Include deep details of the ticket in the response. Default: false',
+          description:
+            'Include comprehensive ticket details and full comment history. Default: false.',
+          default: false,
         },
       },
       required: ['ticketKey'],
@@ -196,8 +194,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: TOOL_NAMES.GET_CURRENT_DATETIME,
-    description:
-      'Get current date and time information in various formats. Useful for calculating relative dates, timestamps, and working with date-based queries or operations.',
+    description: 'Get current date and time in various formats.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -220,7 +217,7 @@ const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
     description:
-      'Get comprehensive details about a specific Sentry issue... IMPORTANT: You must provide the numeric issue ID. If you only know the shortId, first use GET_SENTRY_ISSUES with query="issue:SHORTID" to get the numeric ID.',
+      'Get detailed information about a specific Sentry issue including stack trace and metadata. Requires numeric issue ID.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -232,7 +229,8 @@ const TOOL_DEFINITIONS = [
         },
         includeTags: {
           type: 'boolean',
-          description: 'Include tags in the response if available. Default: false',
+          description: 'Include environment and browser tags. Default: false.',
+          default: false,
         },
         environment: {
           type: 'string',
@@ -240,13 +238,14 @@ const TOOL_DEFINITIONS = [
         },
         trace: {
           type: 'boolean',
-          description:
-            '(Optional) Include stack trace from the latest event in the response. Default: false, if you are asked to check deep details, set this to true',
+          description: 'Include stack trace from the latest event. Default: true.',
+          default: true,
         },
-        checkDeepDetails: {
+        deepDetails: {
           type: 'boolean',
           description:
-            '(Optional) Include detailed information in the response when you are asked to check deep details. Default: false, if you are asked to check deep details, set this to true',
+            'Include comprehensive details like environment breakdowns, user data, and statistics. Default: false.',
+          default: false,
         },
       },
       required: ['issueId'],

@@ -48,14 +48,20 @@ class TokenCounter {
     }
 
     const isOpenaiModel = !!openaiModelToEncoding[this.model];
+    const isClaudeModel = this.model.toLowerCase().includes('claude');
 
     try {
-      if (isOpenaiModel) {
+      if (isClaudeModel) {
+        // Use Anthropic tokenizer for Claude models
+        return countTokens(typeof content === 'object' ? JSON.stringify(content) : content);
+      } else if (isOpenaiModel) {
+        // Use tiktoken for OpenAI models
         const encoded = this.encoding.encode(
           typeof content === 'string' ? content : JSON.stringify(content),
         );
         return encoded.length;
       } else {
+        // Default to Anthropic tokenizer for unknown models
         return countTokens(typeof content === 'object' ? JSON.stringify(content) : content);
       }
     } catch (err) {
