@@ -8,6 +8,8 @@ A Model Context Protocol (MCP) server for integrating with Sentry and JIRA APIs.
 - **JIRA Integration**: Get detailed ticket information
 - **Remote MCP Support**: Works with `mcp-remote` for Claude Desktop
 - **Header-based Authentication**: Pass credentials via HTTP headers
+- **CLI Interface**: Command-line interface for easy usage
+- **Semantic Release**: Automated versioning and publishing
 
 ## Quick Setup (Remote MCP)
 
@@ -216,6 +218,115 @@ Once configured, you can ask your LLM (e.g., Claude) to perform a wide range of 
 ---
 
 **Tip:** You can combine filters (project, environment, date range, error type, etc.) for powerful queries. For more details on available parameters, see the [Available Tools](#available-tools) section above.
+
+## CLI Usage
+
+You can use Sentry Sensei MCP directly from the command line in several ways:
+
+### Global Installation
+
+```bash
+# Install globally
+npm install -g @freddie-manatal/sentry-sensei-mcp
+
+# Use the CLI
+sentry-sensei --help
+sentry-sensei-mcp --help
+```
+
+### Using npx
+
+```bash
+npx @freddie-manatal/sentry-sensei-mcp --help
+```
+
+### CLI Options
+
+```bash
+sentry-sensei [options]
+
+Options:
+  --token <token>              Sentry API token
+  --sentryHost <host>          Sentry host domain (default: sentry.io)
+  --organization <org>         Default organization slug
+  --jiraAccessToken <token>    JIRA API token
+  --atlassianDomain <domain>   JIRA domain (default: jira.com)
+  --jiraUserEmail <email>      JIRA user email
+  --version, -v                Show version number
+  --help, -h                   Show this help message
+```
+
+### Environment Variables
+
+You can also configure the CLI using environment variables:
+
+```bash
+export SENTRY_TOKEN="your-token"
+export SENTRY_HOST="your-org.sentry.io"
+export SENTRY_ORGANIZATION="your-org"
+export JIRA_ACCESS_TOKEN="your-token"
+export ATLASSIAN_DOMAIN="your-domain.atlassian.net"
+export JIRA_USER_EMAIL="your-email@company.com"
+
+# Then run without arguments
+sentry-sensei
+```
+
+## Development
+
+### Semantic Release
+
+This project uses [semantic-release](https://semantic-release.gitbook.io/semantic-release/) for automated versioning and publishing. The release process is triggered automatically on the main branch when commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format.
+
+### Commit Message Format
+
+Follow the Conventional Commits specification for commit messages:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+Types:
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
+
+Examples:
+```bash
+feat(cli): add support for environment variables
+fix(api): handle null response from Sentry API
+docs(readme): update installation instructions
+```
+
+### Release Process
+
+1. Commits to main branch are analyzed by semantic-release
+2. Version is determined based on commit messages
+3. Changelog is automatically generated
+4. New version is published to npm
+5. Release is created on GitHub with changelog
+6. Git tags are created for the release
+
+### Manual Release
+
+For manual releases (if needed):
+
+```bash
+# Dry run to see what would be released
+npm run release:dry-run
+
+# Trigger a release
+npm run release
+```
 
 ## License
 
