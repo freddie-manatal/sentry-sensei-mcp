@@ -56,19 +56,19 @@ const TOOL_DEFINITIONS = [
         project: {
           oneOf: [
             {
-              type: 'number',
-              description: 'Single project ID (e.g., 123456)',
+              type: 'string',
+              description: 'Single project ID (e.g., "123456")',
             },
             {
               type: 'array',
               items: {
-                type: 'number',
+                type: 'string',
               },
-              description: 'Array of project IDs (e.g., [123456, 789012])',
+              description: 'Array of project IDs (e.g., ["123456", "789012"])',
             },
           ],
           description:
-            'Project ID or array of project IDs (optional - gets all projects if not provided). Use projectIds to get issues for a specific project.',
+            'Project ID or array of project IDs (optional - gets all projects if not provided). Project IDs must be the full numeric ID, not the shortId(PROJECT-NAME-XXXX), name, slug.',
         },
         environment: {
           oneOf: [

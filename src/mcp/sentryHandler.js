@@ -343,15 +343,22 @@ class SentryHandler {
 
       try {
         logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
-        const issueDetails = await sentryService.getIssueDetails(this.organization, issueId);
-        logger.info(`✅ Fetched details for issue: [REDACTED]`);
+        const issueDetails = await sentryService.getIssueDetails(
+          this.getOrganization(args),
+          issueId,
+        );
+        logger.info(`✅ Fetched details for issue: ${issueId}`);
 
         let tags = null;
         let latestEvent = null;
 
         if (includeTags || checkDeepDetails) {
           try {
-            tags = await sentryService.getIssueTags(this.organization, issueId, environment);
+            tags = await sentryService.getIssueTags(
+              this.getOrganization(args),
+              issueId,
+              environment,
+            );
           } catch (e) {
             logger.warn(`Could not fetch tags: ${e.message}`);
           }
@@ -359,7 +366,10 @@ class SentryHandler {
 
         if (trace || checkDeepDetails) {
           try {
-            latestEvent = await sentryService.getLatestEventForIssue(this.organization, issueId);
+            latestEvent = await sentryService.getLatestEventForIssue(
+              this.getOrganization(args),
+              issueId,
+            );
           } catch (e) {
             logger.warn(`Could not fetch latest event: ${e.message}`);
           }
