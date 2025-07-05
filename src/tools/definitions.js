@@ -11,6 +11,15 @@ const getCurrentDateInfo = () => {
   };
 };
 
+// Shared properties for all tools that return responses
+const SHARED_PROPERTIES = {
+  model: {
+    type: 'string',
+    description:
+      'Required: Tell me the model you are using for this request and add model id or model name',
+  },
+};
+
 // Tool definitions
 const TOOL_DEFINITIONS = [
   {
@@ -19,7 +28,9 @@ const TOOL_DEFINITIONS = [
       'Get list of Sentry organizations that the authenticated user has access to, including organization details, status, and available features.',
     inputSchema: {
       type: 'object',
-      properties: {},
+      properties: {
+        ...SHARED_PROPERTIES,
+      },
       required: [],
     },
   },
@@ -30,10 +41,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
       },
       required: [],
     },
@@ -44,10 +52,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
         project: {
           oneOf: [
             {
@@ -176,6 +181,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
+        ...SHARED_PROPERTIES,
         ticketKey: {
           type: 'string',
           description: "JIRA ticket key (e.g., 'MAN-123456')",
@@ -195,6 +201,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
+        ...SHARED_PROPERTIES,
         format: {
           type: 'string',
           description:
@@ -213,14 +220,11 @@ const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
     description:
-      'Get comprehensive details about a specific Sentry issue including events, tags, stats, and related data. Useful for deep-diving into specific issues, analyzing error patterns, and gathering context for debugging.',
+      'Get comprehensive details about a specific Sentry issue... IMPORTANT: You must provide the numeric issue ID. If you only know the shortId, first use GET_SENTRY_ISSUES with query="issue:SHORTID" to get the numeric ID.',
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
         issueId: {
           type: 'number',
           description:
@@ -236,15 +240,16 @@ const TOOL_DEFINITIONS = [
         },
         trace: {
           type: 'boolean',
-          description: 'Include stack trace from the latest event in the response. Default: false',
+          description:
+            '(Optional) Include stack trace from the latest event in the response. Default: false, if you are asked to check deep details, set this to true',
         },
         checkDeepDetails: {
           type: 'boolean',
           description:
-            'Include detailed information in the response when you are asked to check deep details. Default: false',
+            '(Optional) Include detailed information in the response when you are asked to check deep details. Default: false, if you are asked to check deep details, set this to true',
         },
       },
-      required: ['organization', 'issueId'],
+      required: ['issueId'],
     },
   },
 ];

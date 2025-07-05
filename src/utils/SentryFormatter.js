@@ -174,92 +174,79 @@ class SentryFormatter {
 
     const lines = [];
     if (currentDateInfo) {
-      lines.push(
-        `**Current Date/Time:** ${currentDateInfo.currentDateTime} (${currentDateInfo.timezone})\n`,
-      );
+      lines.push(`Current Date/Time: ${currentDateInfo.currentDateTime} (${currentDateInfo.timezone})\n`);
     }
 
-    lines.push(`**Issue:** ${issueObj.shortId || issueObj.id} - ${issueObj.title}`);
-    lines.push(`**Status:** ${issueObj.status}`);
-    lines.push(`**Level:** ${issueObj.level}`);
-    lines.push(`**First Seen:** ${issueObj.firstSeen}`);
-    lines.push(`**Last Seen:** ${issueObj.lastSeen}`);
-    lines.push(`**Event Count:** ${issueObj.count}`);
-    lines.push(`**User Count:** ${issueObj.userCount}`);
-    lines.push(`**Project:** ${issueObj.project ? issueObj.project.name : 'Unknown'}`);
+    lines.push(`Issue: ${issueObj.shortId || issueObj.id} - ${issueObj.title}`);
+    lines.push(`Status: ${issueObj.status}`);
+    lines.push(`Level: ${issueObj.level}`);
+    lines.push(`First Seen: ${issueObj.firstSeen}`);
+    lines.push(`Last Seen: ${issueObj.lastSeen}`);
+    lines.push(`Event Count: ${issueObj.count}`);
+    lines.push(`User Count: ${issueObj.userCount}`);
+    lines.push(`Project: ${issueObj.project ? issueObj.project.name : 'Unknown'}`);
 
-    // Add platform and type if available
     if (issueObj.platform) {
-      lines.push(`**Platform:** ${issueObj.platform}`);
+      lines.push(`Platform: ${issueObj.platform}`);
     }
     if (issueObj.type) {
-      lines.push(`**Type:** ${issueObj.type}`);
+      lines.push(`Type: ${issueObj.type}`);
     }
 
-    // Add metadata if available
     if (issueObj.metadata && Object.keys(issueObj.metadata).length > 0) {
-      lines.push('\n**Metadata:**');
+      lines.push('\nMetadata:');
       Object.entries(issueObj.metadata).forEach(([key, value]) => {
-        lines.push(`- ${key}: ${value}`);
+        lines.push(`${key}: ${value}`);
       });
     }
 
-    // Add user information if available
     if (issueObj.user) {
-      lines.push('\n**User Information:**');
-      if (issueObj.user.email) lines.push(`- Email: ${issueObj.user.email}`);
-      if (issueObj.user.username) lines.push(`- Username: ${issueObj.user.username}`);
-      if (issueObj.user.ipAddress) lines.push(`- IP Address: ${issueObj.user.ipAddress}`);
+      lines.push('\nUser Information:');
+      if (issueObj.user.email) lines.push(`Email: ${issueObj.user.email}`);
+      if (issueObj.user.username) lines.push(`Username: ${issueObj.user.username}`);
+      if (issueObj.user.ipAddress) lines.push(`IP Address: ${issueObj.user.ipAddress}`);
     }
 
-    // Add release information if available
     if (issueObj.release) {
-      lines.push('\n**Release Information:**');
-      if (issueObj.release.version) lines.push(`- Version: ${issueObj.release.version}`);
-      if (issueObj.release.dateCreated) lines.push(`- Created: ${issueObj.release.dateCreated}`);
-      if (issueObj.release.dateReleased) lines.push(`- Released: ${issueObj.release.dateReleased}`);
+      lines.push('\nRelease Information:');
+      if (issueObj.release.version) lines.push(`Version: ${issueObj.release.version}`);
+      if (issueObj.release.dateCreated) lines.push(`Created: ${issueObj.release.dateCreated}`);
+      if (issueObj.release.dateReleased) lines.push(`Released: ${issueObj.release.dateReleased}`);
     }
 
-    // Add additional status information if available
     if (issueObj.isUnhandled !== undefined || issueObj.hasSeen !== undefined || issueObj.numComments !== undefined) {
-      lines.push('\n**Additional Status:**');
-      if (issueObj.isUnhandled !== undefined) lines.push(`- Unhandled: ${issueObj.isUnhandled}`);
-      if (issueObj.hasSeen !== undefined) lines.push(`- Seen: ${issueObj.hasSeen}`);
-      if (issueObj.numComments !== undefined) lines.push(`- Comments: ${issueObj.numComments}`);
+      lines.push('\nAdditional Status:');
+      if (issueObj.isUnhandled !== undefined) lines.push(`Unhandled: ${issueObj.isUnhandled}`);
+      if (issueObj.hasSeen !== undefined) lines.push(`Seen: ${issueObj.hasSeen}`);
+      if (issueObj.numComments !== undefined) lines.push(`Comments: ${issueObj.numComments}`);
     }
 
-    // JIRA links
     if (issueObj.annotations && issueObj.annotations.length > 0) {
-      lines.push('\n**JIRA Links:**');
-      issueObj.annotations.forEach(a => lines.push(`→ ${a.key}: ${a.url}`));
+      lines.push('\nJIRA Links:');
+      issueObj.annotations.forEach(a => lines.push(`${a.key}: ${a.url}`));
     }
 
-    // Exception details if available
     if (issueObj.exception) {
-      lines.push('\n**Exception Details:**');
-      lines.push(`- Type: ${issueObj.exception.type}`);
-      lines.push(`- Value: ${issueObj.exception.value}`);
+      lines.push('\nException Details:');
+      lines.push(`Type: ${issueObj.exception.type}`);
+      lines.push(`Value: ${issueObj.exception.value}`);
       if (issueObj.exception.mechanism) {
-        lines.push(`- Mechanism: ${JSON.stringify(issueObj.exception.mechanism)}`);
+        lines.push(`Mechanism: ${JSON.stringify(issueObj.exception.mechanism)}`);
       }
     }
 
-    // Stack trace
     if (issueObj.stacktrace) {
-      lines.push('\n**Stack Trace (Latest Event):**');
-      lines.push('```');
+      lines.push('\nStack Trace (Latest Event):');
       lines.push(issueObj.stacktrace);
-      lines.push('```');
     }
 
-    // Tags summary
     if (issueObj.tagsSummary) {
-      lines.push('\n**Environment Summary:**');
+      lines.push('\nEnvironment Summary:');
       Object.entries(issueObj.tagsSummary).forEach(([tagKey, values]) => {
         const summaryStr = values
           .map(v => `${v.name} (${v.percent !== null ? v.percent + '%' : v.count})`)
           .join(', ');
-        lines.push(`- ${tagKey}: ${summaryStr}`);
+        lines.push(`${tagKey}: ${summaryStr}`);
       });
     }
 

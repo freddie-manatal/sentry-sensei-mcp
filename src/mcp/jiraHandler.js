@@ -1,28 +1,33 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
-const Logger = require('../utils/Logger');
-const JiraFormatter = require('../utils/JiraFormatter');
-const JiraService = require('../services/JiraService');
+const { JiraService } = require('../services/index.js');
+const { Logger, JiraFormatter, TokenCounter } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
 class JiraHandler {
-  constructor(atlassianDomain, jiraAccessToken, jiraUserEmail) {
-    this.jiraAccessToken = jiraAccessToken;
-    this.atlassianDomain = atlassianDomain;
-    this.jiraUserEmail = jiraUserEmail;
+  constructor(domain, token, email) {
+    this.domain = domain;
+    this.token = token;
+    this.email = email;
+    this.logger = new Logger(process.env.LOG_LEVEL || 'INFO');
+  }
+
+  // Helper method to get token counter with model from args
+  getTokenCounter(args) {
+    return new TokenCounter(args.model);
   }
 
   // Helper methods
   getToken() {
-    return this.jiraAccessToken || process.env.JIRA_ACCESS_TOKEN;
+    return this.token || process.env.JIRA_ACCESS_TOKEN;
   }
 
   getAtlassianDomain() {
-    return this.atlassianDomain || process.env.ATLASSIAN_DOMAIN;
+    return this.domain || process.env.ATLASSIAN_DOMAIN;
   }
 
   getJiraUserEmail() {
-    return this.jiraUserEmail || process.env.JIRA_USER_EMAIL;
+    return this.email || process.env.JIRA_USER_EMAIL;
   }
 
   createJiraService() {
@@ -68,9 +73,10 @@ class JiraHandler {
 
     try {
       const jiraService = this.createJiraService();
+
       logger.debug(`Created JIRA service with domain: ${jiraService.atlassianDomain}`);
       logger.debug(`API base URL: ${jiraService.apiBase}`);
-
+      logger.info(JSON.stringify(args, null, 2));
       const result = await jiraService.getJiraTicketDetails(ticketKey, deepDetails);
 
       logger.info(`Successfully fetched JIRA ticket details for: ${ticketKey}`);
@@ -80,7 +86,19 @@ class JiraHandler {
       // Format the response for MCP
       const formattedResponse = JiraFormatter.formatJiraTicketResponse(result);
 
-      return {
+      if (!formattedResponse) {
+        logger.warn('JiraFormatter returned null/undefined response');
+        throw new McpError(
+          ErrorCode.InternalError,
+          `Failed to format JIRA ticket details for ${ticketKey}: Empty response`
+        );
+      }
+
+      logger.debug('Formatted JIRA result:', result);
+      logger.debug('Response before token counting:', formattedResponse);
+      logger.debug('Args before token counting:', args);
+
+      const response = {
         content: [
           {
             type: 'text',
@@ -88,6 +106,14 @@ class JiraHandler {
           },
         ],
       };
+
+      try {
+        return this.getTokenCounter(args).addTokenCounts(response, args);
+      } catch (error) {
+        logger.error(`Error during token counting: ${error.message}`);
+        // Return the response without token counts rather than failing completely
+        return response;
+      }
     } catch (error) {
       logger.error(`Failed to fetch JIRA ticket details for ${ticketKey}: ${error.message}`);
       logger.debug('Error details:', error.stack);

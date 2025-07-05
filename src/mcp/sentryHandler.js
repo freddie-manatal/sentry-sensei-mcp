@@ -1,14 +1,15 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 const { SentryService } = require('../services/index.js');
-const { Logger, SentryFormatter } = require('../utils/index.js');
+const { Logger, SentryFormatter, TokenCounter } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
 class SentryHandler {
-  constructor(defaultSentryHost, defaultOrganization, cliToken) {
-    this.defaultSentryHost = defaultSentryHost;
-    this.defaultOrganization = defaultOrganization;
-    this.cliToken = cliToken;
+  constructor(host, organization, token) {
+    this.host = host;
+    this.organization = organization;
+    this.token = token;
+    this.logger = new Logger(process.env.LOG_LEVEL || 'INFO');
   }
 
   // Helper method to get current date information
@@ -40,15 +41,15 @@ class SentryHandler {
 
   // Helper methods
   getToken() {
-    return this.cliToken || process.env.SENTRY_TOKEN;
+    return this.token || process.env.SENTRY_TOKEN;
   }
 
   getSentryHost() {
-    return this.defaultSentryHost;
+    return this.host;
   }
 
   getOrganization(args) {
-    return args.organization || this.defaultOrganization;
+    return args.organization || this.organization;
   }
 
   createSentryService(args) {
@@ -167,7 +168,7 @@ class SentryHandler {
 
     const filterText =
       filterSummary.length > 1
-        ? `\n\n**Query Information:**\n${filterSummary.map(f => `- ${f}`).join('\n')}`
+        ? `\n\nQuery Information:\n${filterSummary.map(f => f).join('\n')}`
         : '';
 
     // Build annotation summary
@@ -177,15 +178,15 @@ class SentryHandler {
 
     let annotationText = '';
     if (issuesWithAnnotations.length > 0) {
-      annotationText = `\n\n**Issues with JIRA Links (${issuesWithAnnotations.length}/${issues.length}):**\n`;
+      annotationText = `\n\nIssues with JIRA Links (${issuesWithAnnotations.length}/${issues.length}):\n`;
       issuesWithAnnotations.forEach(issue => {
-        annotationText += `- ${issue.shortId || issue.id}: ${issue.title}\n`;
+        annotationText += `${issue.shortId || issue.id}: ${issue.title}\n`;
         issue.annotations.forEach(annotation => {
-          annotationText += `  → ${annotation.displayName}: ${annotation.url}\n`;
+          annotationText += `${annotation.displayName}: ${annotation.url}\n`;
         });
       });
     } else {
-      annotationText = '\n\n**JIRA Links:** None of the issues have linked JIRA tickets.';
+      annotationText = '\n\nJIRA Links: None of the issues have linked JIRA tickets.';
     }
 
     return {
@@ -194,7 +195,7 @@ class SentryHandler {
           type: 'text',
           text: `Found ${
             issues.length
-          } issues in organization "${organization}":${filterText}${annotationText}\n\n**Issues:**\n${JSON.stringify(
+          } issues in organization "${organization}":${filterText}${annotationText}\n\nIssues:\n${JSON.stringify(
             formattedIssues,
             null,
             2,
@@ -204,17 +205,24 @@ class SentryHandler {
     };
   }
 
+  // Helper method to get token counter with model from args
+  getTokenCounter(args) {
+    return new TokenCounter(args.model);
+  }
+
   // Get organizations
   async getOrganizations(args) {
     const sentryService = this.createSentryService(args);
-    return this.fetchOrganizations(sentryService);
+    const response = await this.fetchOrganizations(sentryService);
+    return this.getTokenCounter(args).addTokenCounts(response, args);
   }
 
   // Get projects
   async getProjects(args) {
     const sentryService = this.createSentryService(args);
     const organization = this.getOrganization(args);
-    return this.fetchProjects(sentryService, organization);
+    const response = await this.fetchProjects(sentryService, organization);
+    return this.getTokenCounter(args).addTokenCounts(response, args);
   }
 
   // Get issues
@@ -259,13 +267,13 @@ class SentryHandler {
       );
     }
 
-    return this.fetchIssues(sentryService, organization, issueOptions);
+    const response = await this.fetchIssues(sentryService, organization, issueOptions);
+    return this.getTokenCounter(args).addTokenCounts(response, args);
   }
 
   async getSentryIssueDetails(args) {
     const sentryService = this.createSentryService(args);
     const {
-      organization,
       issueId,
       includeTags,
       environment,
@@ -276,7 +284,7 @@ class SentryHandler {
     try {
       // Fetch issue details
       logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
-      const issueDetails = await sentryService.getIssueDetails(organization, issueId);
+      const issueDetails = await sentryService.getIssueDetails(this.organization, issueId);
       logger.info(`✅ Fetched details for issue: ${issueId}`);
 
       // Always fetch tags if checkDeepDetails is true
@@ -284,7 +292,7 @@ class SentryHandler {
       if (includeTags || checkDeepDetails) {
         try {
           logger.info(`🏷️ Fetching tags for issue: ${issueId}`);
-          tags = await sentryService.getIssueTags(organization, issueId, environment);
+          tags = await sentryService.getIssueTags(this.organization, issueId, environment);
           logger.info(`✅ Fetched tags for issue: ${issueId}`);
         } catch (e) {
           logger.warn(`Could not fetch tags for issue ${issueId}: ${e.message}`);
@@ -296,7 +304,7 @@ class SentryHandler {
       if (trace || checkDeepDetails) {
         try {
           logger.info(`📄 Fetching latest event for issue ${issueId} to get stacktrace.`);
-          latestEvent = await sentryService.getLatestEventForIssue(organization, issueId);
+          latestEvent = await sentryService.getLatestEventForIssue(this.organization, issueId);
           logger.info(`✅ Fetched latest event for issue ${issueId}.`);
         } catch (e) {
           logger.warn(`Could not fetch latest event for issue ${issueId}: ${e.message}`);
@@ -314,14 +322,15 @@ class SentryHandler {
       );
       const markdown = SentryFormatter.issueToMarkdown(formattedIssue, currentDateInfo);
 
-      return {
+      const response = {
         content: [
           {
             type: 'text',
-            text: `${markdown}\n\n**Detailed Information:**\n${JSON.stringify(formattedIssue, null, 2)}`,
+            text: `${markdown}\n\nDetailed Information:\n${JSON.stringify(formattedIssue, null, 2)}`,
           },
         ],
       };
+      return this.getTokenCounter(args).addTokenCounts(response, args);
     } catch (error) {
       logger.error('Error fetching Sentry issue details:', error);
       throw error;

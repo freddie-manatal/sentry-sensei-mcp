@@ -47,29 +47,29 @@ class JiraFormatter {
    * Format structured JIRA data into readable text for MCP response
    */
   static formatJiraTicketResponse(data) {
-    let response = `**JIRA Ticket Details: ${data.key}**\n\n`;
+    let response = `JIRA Ticket Details: ${data.key}\n\n`;
 
-    response += `**Summary:** ${data.summary}\n`;
-    response += `**Status:** ${data.status}\n`;
-    response += `**Priority:** ${data.priority}\n`;
-    response += `**Type:** ${data.issueType}\n`;
-    response += `**Assignee:** ${data.assignee}\n`;
-    response += `**Reporter:** ${data.reporter}\n`;
-    response += `**Created:** ${data.created}\n`;
-    response += `**Updated:** ${data.updated}\n`;
-    response += `**Time Spent:** ${data.timeSpent}\n`;
-    response += `**URL:** ${data.url}\n\n`;
+    response += `Summary: ${data.summary}\n`;
+    response += `Status: ${data.status}\n`;
+    response += `Priority: ${data.priority}\n`;
+    response += `Type: ${data.issueType}\n`;
+    response += `Assignee: ${data.assignee}\n`;
+    response += `Reporter: ${data.reporter}\n`;
+    response += `Created: ${data.created}\n`;
+    response += `Updated: ${data.updated}\n`;
+    response += `Time Spent: ${data.timeSpent}\n`;
+    response += `URL: ${data.url}\n\n`;
 
-    response += `**Description:**\n${data.description}\n\n`;
+    response += `Description:\n${data.description}\n\n`;
 
     if (data.recentComments && data.recentComments.length > 0) {
-      response += `**Recent (${data.recentComments.length}) Comments:**\n`;
+      response += `Recent (${data.recentComments.length}) Comments:\n`;
       data.recentComments.forEach((comment, index) => {
-        response += `\n${index + 1}. **${comment.author}** (${comment.created} at ${comment.createdTime})\n`;
+        response += `\n${index + 1}. ${comment.author} (${comment.created} at ${comment.createdTime})\n`;
         response += `   ${comment.body}\n`;
       });
     } else {
-      response += '**No recent comments found.**\n';
+      response += 'No recent comments found.\n';
     }
 
     return response;
