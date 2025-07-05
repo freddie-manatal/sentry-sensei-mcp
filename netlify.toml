@@ -1,6 +1,6 @@
 [build]
   functions = "netlify/functions"
-  publish = false
+  ignore = "exit 0"
 
 [build.environment]
   NODE_VERSION = "18"
