@@ -52,8 +52,7 @@
     "zod": "^3.25.71"
   },
   "bin": {
-    "sentry-sensei": "./src/index.js",
-    "sentry-sensei-mcp": "./src/index.js"
+    "start": "./src/index.js"
   },
   "files": [
     "src/",
