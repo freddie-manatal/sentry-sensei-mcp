@@ -100,12 +100,12 @@ const TOOL_DEFINITIONS = [
         excludeErrorType: {
           type: 'string',
           description:
-            "Exclude specific error type from issues (e.g., 'NullPointerException', '**404**', '**500**')",
+            "Exclude specific error type from issues (e.g., 'NullPointerException', '**404**', '**500**'), this is not a shortId of the issue, it is the error message or type of the issue",
         },
         errorMessage: {
           type: 'string',
           description:
-            "Filter by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**')",
+            "Filter by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**'), this is not a shortId of the issue, it is the error message or type of the issue",
         },
         limit: {
           type: 'integer',
@@ -134,7 +134,7 @@ const TOOL_DEFINITIONS = [
         query: {
           type: 'string',
           description:
-            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium]',
+            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium] issue:shortIdOfIssue',
         },
         expand: {
           type: 'array',
