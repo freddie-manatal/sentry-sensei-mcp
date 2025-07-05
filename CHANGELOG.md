@@ -1,3 +1,10 @@
+# [1.1.0-alpha.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.0.0...v1.1.0-alpha.1) (2025-07-05)
+
+
+### Features
+
+* update package.json to modify CLI entry points ([#5](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/5)) ([676b5e1](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/676b5e1850ecc82a911168615475ba3d4c44e967))
+
 # 1.0.0 (2025-07-05)
 
 
