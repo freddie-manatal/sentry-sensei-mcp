@@ -67,7 +67,7 @@ class SentryService {
       excludeErrorType,
       errorMessage,
       environment,
-      limit = 20,
+      limit = 10,
       issue,
       utc = true,
       statsPeriod,

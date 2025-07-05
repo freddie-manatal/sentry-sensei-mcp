@@ -15,8 +15,7 @@ const getCurrentDateInfo = () => {
 const SHARED_PROPERTIES = {
   model: {
     type: 'string',
-    description:
-      '[Required] Model identifier (e.g., "claude-4-sonnet-xxxx", "gpt-4o-xxxx", "claude-3-haiku-xxxx")',
+    description: '[Required] Model identifier (e.g., "claude-xxxx", "gpt -xxxx","claude-xxxx")',
   },
 };
 
@@ -111,7 +110,7 @@ const TOOL_DEFINITIONS = [
         },
         limit: {
           type: 'integer',
-          description: 'Maximum number of issues to return (1-100). Default: 50',
+          description: 'Maximum number of issues to return (1-100). Default: 10',
           minimum: 1,
           maximum: 100,
         },
