@@ -9,18 +9,14 @@ const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
  */
 function extractCredentials(req) {
   const headers = req.headers || {};
-  
-  logger.info('Raw headers received:', Object.keys(headers));
-  logger.info('Header values:', {
-    'x-sentry-host': headers['x-sentry-host'],
-    'x-sentry-organization': headers['x-sentry-organization'],
-    'x-sentry-token': headers['x-sentry-token'] ? '***' : undefined,
-  });
 
   const credentials = {
     sentry: {
       host: headers['x-sentry-host'] || process.env.SENTRY_HOST,
-      organization: headers['x-sentry-organization'] || process.env.SENTRY_ORG || process.env.SENTRY_ORGANIZATION,
+      organization:
+        headers['x-sentry-organization'] ||
+        process.env.SENTRY_ORG ||
+        process.env.SENTRY_ORGANIZATION,
       token: headers['x-sentry-token'] || process.env.SENTRY_TOKEN,
     },
     jira: {

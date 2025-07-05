@@ -92,6 +92,11 @@ const TOOL_DEFINITIONS = [
             'Sort order for issues: "date" (Last Seen), "new" (First Seen), "trends" (Trends), "freq" (Events), "user" (Users), "inbox" (Date Added). Default: "freq"',
           enum: ['date', 'freq', 'inbox', 'new', 'trends', 'user'],
         },
+        issue: {
+          type: 'string',
+          description:
+            'Filter by short ID or full ID of a specific Sentry issue (e.g., "PROJECT-NAME-XXXX"). Use this to find a single issue by its identifier.',
+        },
         excludeErrorType: {
           type: 'string',
           description:
@@ -100,17 +105,13 @@ const TOOL_DEFINITIONS = [
         errorMessage: {
           type: 'string',
           description:
-            "Filter issues by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**')",
+            "Filter by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**')",
         },
         limit: {
           type: 'integer',
           description: 'Maximum number of issues to return (1-100). Default: 50',
           minimum: 1,
           maximum: 100,
-        },
-        shortIdLookup: {
-          type: 'boolean',
-          description: 'Enable parsing of issue short IDs in queries. Default: false',
         },
         statsPeriod: {
           type: 'string',
@@ -179,6 +180,10 @@ const TOOL_DEFINITIONS = [
           type: 'string',
           description: "JIRA ticket key (e.g., 'MAN-123456')",
         },
+        deepDetails: {
+          type: 'boolean',
+          description: 'Include deep details of the ticket in the response. Default: false',
+        },
       },
       required: ['ticketKey'],
     },
@@ -217,8 +222,9 @@ const TOOL_DEFINITIONS = [
           description: 'Organization slug (optional - uses default if not provided)',
         },
         issueId: {
-          type: 'string',
-          description: 'Issue ID (e.g., "5829644011")',
+          type: 'number',
+          description:
+            'Issue ID must be number (e.g., 5829644011). To get the numeric ID from a short ID, first list issues with GET_SENTRY_ISSUES using a query filter like "issue:SHORTID" and read the returned id field.',
         },
         includeTags: {
           type: 'boolean',
@@ -227,6 +233,11 @@ const TOOL_DEFINITIONS = [
         environment: {
           type: 'string',
           description: 'Environment name (e.g., "production", "staging", "**pr**")',
+        },
+        checkDeepDetails: {
+          type: 'boolean',
+          description:
+            'Include detailed information in the response when you are asked to check deep details. Default: false',
         },
       },
       required: ['organization', 'issueId'],

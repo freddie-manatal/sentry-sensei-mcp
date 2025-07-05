@@ -10,12 +10,12 @@ function createHandlers(credentials) {
     sentryHandler: new SentryHandler(
       credentials.sentry.host,
       credentials.sentry.organization,
-      credentials.sentry.token
+      credentials.sentry.token,
     ),
     jiraHandler: new JiraHandler(
       credentials.jira.domain,
       credentials.jira.token,
-      credentials.jira.email
+      credentials.jira.email,
     ),
     datetimeHandler: new DatetimeHandler(),
   };

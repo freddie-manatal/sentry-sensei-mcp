@@ -54,7 +54,10 @@ class JiraHandler {
     return new JiraService(domain, token, userEmail);
   }
 
-  async getJiraTicketDetails(ticketKey) {
+  async getJiraTicketDetails(args) {
+    const ticketKey = args.ticketKey;
+    const deepDetails = args.deepDetails;
+
     if (!ticketKey) {
       throw new McpError(
         ErrorCode.InvalidParams,
@@ -68,7 +71,7 @@ class JiraHandler {
       logger.debug(`Created JIRA service with domain: ${jiraService.atlassianDomain}`);
       logger.debug(`API base URL: ${jiraService.apiBase}`);
 
-      const result = await jiraService.getJiraTicketDetails(ticketKey);
+      const result = await jiraService.getJiraTicketDetails(ticketKey, deepDetails);
 
       logger.info(`Successfully fetched JIRA ticket details for: ${ticketKey}`);
       logger.debug(`JIRA ticket summary: ${result.summary}`);

@@ -145,7 +145,7 @@ class SentryMCPServer {
       case TOOL_NAMES.GET_SENTRY_ISSUES:
         return await this.sentryHandler.getIssues(args);
       case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
-        return await this.jiraHandler.getJiraTicketDetails(args.ticketKey);
+        return await this.jiraHandler.getJiraTicketDetails(args);
       case TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS:
         return await this.sentryHandler.getSentryIssueDetails(args);
       default:
