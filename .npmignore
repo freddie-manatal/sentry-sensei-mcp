@@ -1,0 +1,48 @@
+# Development files
+.github/
+.netlify/
+.claude/
+tests/
+docs/
+netlify/
+render.yaml
+netlify.toml
+server.js
+
+# Configuration files
+.eslintrc*
+.prettierrc*
+.prettierignore
+eslint.config.js
+mcp-config-examples.json
+
+# Build artifacts
+dist/
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Git files
+.gitignore
+.gitattributes 

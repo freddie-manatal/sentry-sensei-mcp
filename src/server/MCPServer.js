@@ -3,6 +3,7 @@ const { TOOL_DEFINITIONS, TOOL_NAMES, ENABLED_TOOLS } = require('../tools/index.
 const { Logger } = require('../utils/index.js');
 const { extractCredentials } = require('../shared/credentials');
 const { createHandlers } = require('../shared/handlers');
+const { getVersion } = require('../utils/version.js');
 
 /**
  * Core MCP Server class - transport-agnostic implementation
@@ -13,7 +14,7 @@ class MCPServer {
     this.logger = new Logger(process.env.LOG_LEVEL || 'INFO');
     this.serverInfo = {
       name: 'sentry-sensei-mcp',
-      version: '1.0.0',
+      version: getVersion(),
       ...options.serverInfo,
     };
     this.capabilities = {
