@@ -67,8 +67,8 @@ class SentryService {
       excludeErrorType,
       errorMessage,
       environment,
-      limit = 50,
-      shortIdLookup = false,
+      limit = 20,
+      issue,
       utc = true,
       statsPeriod,
       groupStatsPeriod,
@@ -90,6 +90,10 @@ class SentryService {
       queryParts.push('is:unresolved');
     }
 
+    if (issue) {
+      queryParts.push(`issue:"${issue}"`);
+    }
+
     if (excludeErrorType) {
       queryParts.push(`!error.type:"${excludeErrorType}"`);
     }
@@ -104,7 +108,6 @@ class SentryService {
     const params = new URLSearchParams({
       sort: sortBy,
       limit: limit.toString(),
-      shortIdLookup: shortIdLookup ? '1' : '0',
       utc: utc ? 'true' : 'false',
     });
 
@@ -169,6 +172,9 @@ class SentryService {
       params.append('cursor', cursor);
     }
 
+    // Add shortIdLookup
+    params.append('shortIdLookup', '1');
+
     // Use organization-level issues endpoint
     const url = `${this.apiBase}/organizations/${encodeURIComponent(organization)}/issues/?${params}`;
     return await this.fetchJson(url, 'Fetching issues');
@@ -217,6 +223,11 @@ class SentryService {
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/`,
     );
     return response;
+  }
+
+  async getLatestEventForIssue(organization, issueId) {
+    const url = `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/events/latest/`;
+    return this.fetchJson(url, `Fetching latest event for issue ${issueId}`);
   }
 
   async getIssueTags(organization, issueId, environment) {

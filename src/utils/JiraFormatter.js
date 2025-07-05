@@ -2,56 +2,44 @@ class JiraFormatter {
   /**
    * Format raw JIRA API response into structured data
    */
-  static formatJiraResponse(data, atlassianDomain) {
+  static formatJiraResponse(data, atlassianDomain, deepDetails) {
     const fields = data.fields || {};
 
     const summary = fields.summary || 'No summary available';
-    const description =
-      this.extractTextFromDocument(fields.description) || 'No description available';
+    const description = (
+      this.extractTextFromDocument(fields.description) || 'No description available'
+    ).slice(0, 1000); // truncate to 1000 chars
     const status = fields.status?.name || 'Unknown';
-    const statusCategory = fields.status?.statusCategory?.name || 'Unknown';
     const priority = fields.priority?.name || 'Unknown';
     const issueType = fields.issuetype?.name || 'Unknown';
     const assignee = fields.assignee?.displayName || 'Unassigned';
     const reporter = fields.reporter?.displayName || 'Unknown';
     const created = fields.created ? new Date(fields.created).toLocaleDateString() : 'Unknown';
     const updated = fields.updated ? new Date(fields.updated).toLocaleDateString() : 'Unknown';
-
-    const fixVersions = fields.fixVersions?.map(v => v.name).join(', ') || 'None';
-
-    const components = fields.components?.map(c => c.name).join(', ') || 'None';
-
     const timeSpent = fields.timespent ? this.formatTimeSpent(fields.timespent) : 'None';
-    const timeEstimate = fields.timeestimate ? this.formatTimeSpent(fields.timeestimate) : 'None';
 
-    const commentCount = fields.comment?.total || 0;
-
-    const attachmentCount = fields.attachment?.length || 0;
-
-    const recentComments = this.getRecentComments(fields.comment, 5);
+    // Only last 3 comments, each truncated to 300 chars unless deepDetails is true
+    const recentComments = deepDetails
+      ? this.getRecentComments(fields.comment, 10)
+      : (this.getRecentComments(fields.comment, 3) || []).map(c => ({
+          ...c,
+          body: c.body ? c.body.slice(0, 300) : 'No comment body',
+        }));
 
     return {
       key: data.key,
       summary,
       description,
       status,
-      statusCategory,
       priority,
       issueType,
       assignee,
       reporter,
       created,
       updated,
-      fixVersions,
-      components,
       timeSpent,
-      timeEstimate,
-      commentCount,
-      attachmentCount,
       recentComments,
       url: `https://${atlassianDomain}/browse/${data.key}`,
-
-      rawData: data,
     };
   }
 
@@ -59,48 +47,29 @@ class JiraFormatter {
    * Format structured JIRA data into readable text for MCP response
    */
   static formatJiraTicketResponse(data) {
-    let response = `🎫 **JIRA Ticket Details: ${data.key}**\n\n`;
+    let response = `JIRA Ticket Details: ${data.key}\n\n`;
 
-    response += `**Summary:** ${data.summary}\n`;
-    response += `**Status:** ${data.status} (${data.statusCategory})\n`;
-    response += `**Priority:** ${data.priority}\n`;
-    response += `**Type:** ${data.issueType}\n`;
-    response += `**Assignee:** ${data.assignee}\n`;
-    response += `**Reporter:** ${data.reporter}\n`;
-    response += `**Created:** ${data.created}\n`;
-    response += `**Updated:** ${data.updated}\n`;
+    response += `Summary: ${data.summary}\n`;
+    response += `Status: ${data.status}\n`;
+    response += `Priority: ${data.priority}\n`;
+    response += `Type: ${data.issueType}\n`;
+    response += `Assignee: ${data.assignee}\n`;
+    response += `Reporter: ${data.reporter}\n`;
+    response += `Created: ${data.created}\n`;
+    response += `Updated: ${data.updated}\n`;
+    response += `Time Spent: ${data.timeSpent}\n`;
+    response += `URL: ${data.url}\n\n`;
 
-    if (data.fixVersions && data.fixVersions !== 'None') {
-      response += `**Fix Versions:** ${data.fixVersions}\n`;
-    }
-
-    if (data.components && data.components !== 'None') {
-      response += `**Components:** ${data.components}\n`;
-    }
-
-    if (data.timeSpent && data.timeSpent !== 'None') {
-      response += `**Time Spent:** ${data.timeSpent}\n`;
-    }
-
-    if (data.timeEstimate && data.timeEstimate !== 'None') {
-      response += `**Time Estimate:** ${data.timeEstimate}\n`;
-    }
-
-    response += `**Comments:** ${data.commentCount}\n`;
-    response += `**Attachments:** ${data.attachmentCount}\n`;
-
-    response += `**URL:** ${data.url}\n\n`;
-
-    response += `**Description:**\n${data.description}\n\n`;
+    response += `Description:\n${data.description}\n\n`;
 
     if (data.recentComments && data.recentComments.length > 0) {
-      response += `**Recent Comments (Last ${data.recentComments.length}):**\n`;
+      response += `Recent (${data.recentComments.length}) Comments:\n`;
       data.recentComments.forEach((comment, index) => {
-        response += `\n${index + 1}. **${comment.author}** (${comment.created} at ${comment.createdTime})\n`;
+        response += `\n${index + 1}. ${comment.author} (${comment.created} at ${comment.createdTime})\n`;
         response += `   ${comment.body}\n`;
       });
     } else {
-      response += '**No recent comments found.**\n';
+      response += 'No recent comments found.\n';
     }
 
     return response;

@@ -18,7 +18,7 @@ class JiraService {
     };
   }
 
-  async getJiraTicketDetails(ticketKey) {
+  async getJiraTicketDetails(ticketKey, deepDetails) {
     const url = `${this.apiBase}/issue/${ticketKey}`;
 
     try {
@@ -39,7 +39,7 @@ class JiraService {
       }
 
       const json = await response.json();
-      return JiraFormatter.formatJiraResponse(json, this.atlassianDomain);
+      return JiraFormatter.formatJiraResponse(json, this.atlassianDomain, deepDetails);
     } catch (error) {
       if (error.name === 'AbortError') {
         throw new Error(`JIRA API request timed out after 15 seconds for ticket: ${ticketKey}`);

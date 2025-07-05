@@ -1,28 +1,33 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
-const Logger = require('../utils/Logger');
-const JiraFormatter = require('../utils/JiraFormatter');
-const JiraService = require('../services/JiraService');
+const { JiraService } = require('../services/index.js');
+const { Logger, JiraFormatter, TokenCounter } = require('../utils/index.js');
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
 
 class JiraHandler {
-  constructor(atlassianDomain, jiraAccessToken, jiraUserEmail) {
-    this.jiraAccessToken = jiraAccessToken;
-    this.atlassianDomain = atlassianDomain;
-    this.jiraUserEmail = jiraUserEmail;
+  constructor(domain, token, email) {
+    this.domain = domain;
+    this.token = token;
+    this.email = email;
+    this.logger = new Logger(process.env.LOG_LEVEL || 'INFO');
+  }
+
+  // Helper method to get token counter with model from args
+  getTokenCounter(args) {
+    return new TokenCounter(args.model);
   }
 
   // Helper methods
   getToken() {
-    return this.jiraAccessToken || process.env.JIRA_ACCESS_TOKEN;
+    return this.token || process.env.JIRA_ACCESS_TOKEN;
   }
 
   getAtlassianDomain() {
-    return this.atlassianDomain || process.env.ATLASSIAN_DOMAIN;
+    return this.domain || process.env.ATLASSIAN_DOMAIN;
   }
 
   getJiraUserEmail() {
-    return this.jiraUserEmail || process.env.JIRA_USER_EMAIL;
+    return this.email || process.env.JIRA_USER_EMAIL;
   }
 
   createJiraService() {
@@ -54,50 +59,119 @@ class JiraHandler {
     return new JiraService(domain, token, userEmail);
   }
 
-  async getJiraTicketDetails(ticketKey) {
+  async getJiraTicketDetails(args) {
+    const ticketKey = args.ticketKey;
+    const deepDetails = args.deepDetails;
+
     if (!ticketKey) {
-      throw new McpError(
-        ErrorCode.InvalidParams,
-        "JIRA ticket key is required (e.g., 'MAN-1234', 'BUG-4774')",
-      );
-    }
-    logger.info(`Fetching JIRA ticket details for: ${ticketKey}`);
-
-    try {
-      const jiraService = this.createJiraService();
-      logger.debug(`Created JIRA service with domain: ${jiraService.atlassianDomain}`);
-      logger.debug(`API base URL: ${jiraService.apiBase}`);
-
-      const result = await jiraService.getJiraTicketDetails(ticketKey);
-
-      logger.info(`Successfully fetched JIRA ticket details for: ${ticketKey}`);
-      logger.debug(`JIRA ticket summary: ${result.summary}`);
-      logger.debug(`JIRA ticket status: ${result.status} (${result.statusCategory})`);
-
-      // Format the response for MCP
-      const formattedResponse = JiraFormatter.formatJiraTicketResponse(result);
-
       return {
         content: [
           {
             type: 'text',
-            text: formattedResponse,
+            text: 'Error: JIRA ticket key is required (e.g., "MAN-1234", "BUG-4774")',
           },
         ],
       };
-    } catch (error) {
-      logger.error(`Failed to fetch JIRA ticket details for ${ticketKey}: ${error.message}`);
-      logger.debug('Error details:', error.stack);
+    }
 
-      // Convert to McpError for consistent error handling
-      if (error instanceof McpError) {
-        throw error;
+    try {
+      const jiraService = this.createJiraService();
+      logger.info(`Fetching JIRA ticket details for: ${ticketKey}`);
+
+      try {
+        const result = await jiraService.getJiraTicketDetails(ticketKey, deepDetails);
+        logger.info(`Successfully fetched JIRA ticket details for: ${ticketKey}`);
+
+        const formattedResponse = JiraFormatter.formatJiraTicketResponse(result);
+        if (!formattedResponse) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Failed to format JIRA ticket ${ticketKey}. The ticket may be empty or corrupted.`,
+              },
+            ],
+          };
+        }
+
+        const response = {
+          content: [
+            {
+              type: 'text',
+              text: formattedResponse,
+            },
+          ],
+        };
+
+        try {
+          return this.getTokenCounter(args).addTokenCounts(response, args);
+        } catch (tokenError) {
+          logger.warn(`Token counting failed: ${tokenError.message}`);
+          return response;
+        }
+      } catch (error) {
+        // Handle specific JIRA API errors
+        if (error.status === 404) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: JIRA ticket ${ticketKey} not found. Please check if the ticket exists and you have permission to view it.`,
+              },
+            ],
+          };
+        }
+        if (error.status === 401 || error.status === 403) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Authentication failed. Please check your JIRA credentials and permissions.`,
+              },
+            ],
+          };
+        }
+        if (error.status === 400) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: Invalid request. Please check if the ticket key "${ticketKey}" is correct.`,
+              },
+            ],
+          };
+        }
+        if (error.status === 500) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: JIRA server error. Please try again later.\nDetails: ${error.message}`,
+              },
+            ],
+          };
+        }
+
+        // Generic error handler
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching JIRA ticket: ${error.message}\n\nPlease try again or contact support if the issue persists.`,
+            },
+          ],
+        };
       }
-
-      throw new McpError(
-        ErrorCode.InternalError,
-        `Failed to fetch JIRA ticket details for ${ticketKey}: ${error.message}`,
-      );
+    } catch (error) {
+      logger.error(`Error in getJiraTicketDetails: ${error.message}`);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Failed to process your request: ${error.message}\n\nPlease check your JIRA configuration and try again.`,
+          },
+        ],
+      };
     }
   }
 }

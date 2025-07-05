@@ -1,4 +1,4 @@
-const { TOOL_DEFINITIONS, TOOL_NAMES } = require('../tools/index.js');
+const { TOOL_DEFINITIONS, TOOL_NAMES, ENABLED_TOOLS } = require('../tools/index.js');
 const { Logger } = require('../utils/index.js');
 const { extractCredentials } = require('./credentials');
 const { createHandlers } = require('./handlers');
@@ -24,9 +24,9 @@ async function processMCPRequest(req, body) {
       status: 400,
       body: {
         jsonrpc: '2.0',
-        error: { 
-          code: -32600, 
-          message: 'Invalid Request - JSON-RPC 2.0 format required' 
+        error: {
+          code: -32600,
+          message: 'Invalid Request - JSON-RPC 2.0 format required',
         },
         id: id || null,
       },
@@ -39,9 +39,9 @@ async function processMCPRequest(req, body) {
       status: 400,
       body: {
         jsonrpc: '2.0',
-        error: { 
-          code: -32600, 
-          message: 'Invalid Request - method is required' 
+        error: {
+          code: -32600,
+          message: 'Invalid Request - method is required',
         },
         id: id || null,
       },
@@ -81,12 +81,13 @@ async function processMCPRequest(req, body) {
 
   if (method === 'tools/list') {
     logger.info('Listing available tools');
+
     return {
       status: 200,
       body: {
         jsonrpc: '2.0',
         result: {
-          tools: TOOL_DEFINITIONS,
+          tools: TOOL_DEFINITIONS.filter(tool => ENABLED_TOOLS.includes(tool.name)),
         },
         id,
       },
@@ -95,16 +96,16 @@ async function processMCPRequest(req, body) {
 
   if (method === 'tools/call') {
     const { name: toolName, arguments: toolArgs } = params || {};
-    
+
     // Validate tool call parameters
     if (!toolName) {
       return {
         status: 400,
         body: {
           jsonrpc: '2.0',
-          error: { 
-            code: -32602, 
-            message: 'Invalid params - tool name is required' 
+          error: {
+            code: -32602,
+            message: 'Invalid params - tool name is required',
           },
           id: id || null,
         },
@@ -113,7 +114,7 @@ async function processMCPRequest(req, body) {
 
     logger.info(`Executing tool: ${toolName}`);
     logger.debug('Tool arguments:', toolArgs);
-    
+
     try {
       // Extract credentials from headers for this request
       const credentials = extractCredentials(req);
@@ -137,9 +138,12 @@ async function processMCPRequest(req, body) {
         case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
           logger.info(`🎟️ Executing JIRA ticket details: ${JSON.stringify(toolArgs)}`);
           if (!toolArgs?.ticketKey) {
-            throw new McpError(ErrorCode.InvalidParams, 'ticketKey is required for JIRA ticket details');
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              'ticketKey is required for JIRA ticket details',
+            );
           }
-          result = await jiraHandler.getJiraTicketDetails(toolArgs.ticketKey);
+          result = await jiraHandler.getJiraTicketDetails(toolArgs);
           break;
 
         case TOOL_NAMES.GET_CURRENT_DATETIME:
@@ -158,9 +162,9 @@ async function processMCPRequest(req, body) {
             status: 404,
             body: {
               jsonrpc: '2.0',
-              error: { 
-                code: -32601, 
-                message: `Method not found: ${toolName}` 
+              error: {
+                code: -32601,
+                message: `Method not found: ${toolName}`,
               },
               id: id || null,
             },
@@ -216,9 +220,9 @@ async function processMCPRequest(req, body) {
     status: 404,
     body: {
       jsonrpc: '2.0',
-      error: { 
-        code: -32601, 
-        message: `Method not found: ${method}` 
+      error: {
+        code: -32601,
+        message: `Method not found: ${method}`,
       },
       id: id || null,
     },

@@ -1,4 +1,4 @@
-const TOOL_NAMES = require('./constants');
+const { TOOL_NAMES } = require('./constants');
 
 // Get current date for tool descriptions
 const getCurrentDateInfo = () => {
@@ -11,6 +11,15 @@ const getCurrentDateInfo = () => {
   };
 };
 
+// Shared properties for all tools that return responses
+const SHARED_PROPERTIES = {
+  model: {
+    type: 'string',
+    description:
+      'Required: Tell me the model you are using for this request and add model id or model name',
+  },
+};
+
 // Tool definitions
 const TOOL_DEFINITIONS = [
   {
@@ -19,7 +28,9 @@ const TOOL_DEFINITIONS = [
       'Get list of Sentry organizations that the authenticated user has access to, including organization details, status, and available features.',
     inputSchema: {
       type: 'object',
-      properties: {},
+      properties: {
+        ...SHARED_PROPERTIES,
+      },
       required: [],
     },
   },
@@ -30,10 +41,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
       },
       required: [],
     },
@@ -44,26 +52,23 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
         project: {
           oneOf: [
             {
-              type: 'number',
-              description: 'Single project ID (e.g., 123456)',
+              type: 'string',
+              description: 'Single project ID (e.g., "123456")',
             },
             {
               type: 'array',
               items: {
-                type: 'number',
+                type: 'string',
               },
-              description: 'Array of project IDs (e.g., [123456, 789012])',
+              description: 'Array of project IDs (e.g., ["123456", "789012"])',
             },
           ],
           description:
-            'Project ID or array of project IDs (optional - gets all projects if not provided). Use projectIds to get issues for a specific project.',
+            'Project ID or array of project IDs (optional - gets all projects if not provided). Project IDs must be the full numeric ID, not the shortId(PROJECT-NAME-XXXX), name, slug.',
         },
         environment: {
           oneOf: [
@@ -92,25 +97,26 @@ const TOOL_DEFINITIONS = [
             'Sort order for issues: "date" (Last Seen), "new" (First Seen), "trends" (Trends), "freq" (Events), "user" (Users), "inbox" (Date Added). Default: "freq"',
           enum: ['date', 'freq', 'inbox', 'new', 'trends', 'user'],
         },
+        issue: {
+          type: 'string',
+          description:
+            'Filter by short ID or full ID of a specific Sentry issue (e.g., "PROJECT-NAME-XXXX"). Use this to find a single issue by its identifier.',
+        },
         excludeErrorType: {
           type: 'string',
           description:
-            "Exclude specific error type from issues (e.g., 'NullPointerException', '**404**', '**500**')",
+            "Exclude specific error type from issues (e.g., 'NullPointerException', '**404**', '**500**'), this is not a shortId of the issue, it is the error message or type of the issue",
         },
         errorMessage: {
           type: 'string',
           description:
-            "Filter issues by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**')",
+            "Filter by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**'), this is not a shortId of the issue, it is the error message or type of the issue",
         },
         limit: {
           type: 'integer',
           description: 'Maximum number of issues to return (1-100). Default: 50',
           minimum: 1,
           maximum: 100,
-        },
-        shortIdLookup: {
-          type: 'boolean',
-          description: 'Enable parsing of issue short IDs in queries. Default: false',
         },
         statsPeriod: {
           type: 'string',
@@ -133,7 +139,7 @@ const TOOL_DEFINITIONS = [
         query: {
           type: 'string',
           description:
-            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium]',
+            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium] issue:shortIdOfIssue',
         },
         expand: {
           type: 'array',
@@ -175,9 +181,14 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
+        ...SHARED_PROPERTIES,
         ticketKey: {
           type: 'string',
           description: "JIRA ticket key (e.g., 'MAN-123456')",
+        },
+        deepDetails: {
+          type: 'boolean',
+          description: 'Include deep details of the ticket in the response. Default: false',
         },
       },
       required: ['ticketKey'],
@@ -190,6 +201,7 @@ const TOOL_DEFINITIONS = [
     inputSchema: {
       type: 'object',
       properties: {
+        ...SHARED_PROPERTIES,
         format: {
           type: 'string',
           description:
@@ -208,17 +220,15 @@ const TOOL_DEFINITIONS = [
   {
     name: TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
     description:
-      'Get comprehensive details about a specific Sentry issue including events, tags, stats, and related data. Useful for deep-diving into specific issues, analyzing error patterns, and gathering context for debugging.',
+      'Get comprehensive details about a specific Sentry issue... IMPORTANT: You must provide the numeric issue ID. If you only know the shortId, first use GET_SENTRY_ISSUES with query="issue:SHORTID" to get the numeric ID.',
     inputSchema: {
       type: 'object',
       properties: {
-        organization: {
-          type: 'string',
-          description: 'Organization slug (optional - uses default if not provided)',
-        },
+        ...SHARED_PROPERTIES,
         issueId: {
-          type: 'string',
-          description: 'Issue ID (e.g., "5829644011")',
+          type: 'number',
+          description:
+            'Issue ID must be number (e.g., 5829644011). To get the numeric ID from a short ID, first list issues with GET_SENTRY_ISSUES using a query filter like "issue:SHORTID" and read the returned id field.',
         },
         includeTags: {
           type: 'boolean',
@@ -228,8 +238,18 @@ const TOOL_DEFINITIONS = [
           type: 'string',
           description: 'Environment name (e.g., "production", "staging", "**pr**")',
         },
+        trace: {
+          type: 'boolean',
+          description:
+            '(Optional) Include stack trace from the latest event in the response. Default: false, if you are asked to check deep details, set this to true',
+        },
+        checkDeepDetails: {
+          type: 'boolean',
+          description:
+            '(Optional) Include detailed information in the response when you are asked to check deep details. Default: false, if you are asked to check deep details, set this to true',
+        },
       },
-      required: ['organization', 'issueId'],
+      required: ['issueId'],
     },
   },
 ];

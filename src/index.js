@@ -10,7 +10,7 @@ const {
 } = require('@modelcontextprotocol/sdk/types.js');
 const { config } = require('dotenv');
 const { Logger } = require('./utils/index.js');
-const { TOOL_NAMES, TOOL_DEFINITIONS } = require('./tools/index.js');
+const { TOOL_NAMES, TOOL_DEFINITIONS, ENABLED_TOOLS } = require('./tools/index.js');
 const { SentryHandler, JiraHandler } = require('./mcp/index.js');
 
 config();
@@ -113,7 +113,7 @@ class SentryMCPServer {
 
   setupListToolsHandler() {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return { tools: TOOL_DEFINITIONS };
+      return { tools: TOOL_DEFINITIONS.filter(tool => ENABLED_TOOLS.includes(tool.name)) };
     });
   }
 
@@ -145,7 +145,7 @@ class SentryMCPServer {
       case TOOL_NAMES.GET_SENTRY_ISSUES:
         return await this.sentryHandler.getIssues(args);
       case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
-        return await this.jiraHandler.getJiraTicketDetails(args.ticketKey);
+        return await this.jiraHandler.getJiraTicketDetails(args);
       case TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS:
         return await this.sentryHandler.getSentryIssueDetails(args);
       default:
