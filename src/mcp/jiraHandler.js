@@ -61,7 +61,7 @@ class JiraHandler {
 
   async getJiraTicketDetails(args) {
     const ticketKey = args.ticketKey;
-    const deepDetails = args.deepDetails;
+    const deepDetails = args.deepDetails || false; // Default to false for cost optimization
 
     if (!ticketKey) {
       return {

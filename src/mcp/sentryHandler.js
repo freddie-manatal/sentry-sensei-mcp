@@ -339,7 +339,20 @@ class SentryHandler {
   async getSentryIssueDetails(args) {
     try {
       const sentryService = this.createSentryService(args);
-      const { issueId, includeTags, environment, trace, checkDeepDetails } = args;
+      const { 
+        issueId, 
+        includeTags = false, 
+        environment, 
+        trace = true, 
+        deepDetails = false 
+      } = args;
+      
+      // Force optimization defaults unless explicitly requested
+      const actualIncludeTags = includeTags === true ? true : false;
+      const actualTrace = trace === false ? false : true; // Keep trace true by default for debugging
+      const actualDeepDetails = deepDetails === true ? true : false;
+      
+      const checkDeepDetails = actualDeepDetails;
 
       try {
         logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
@@ -352,7 +365,7 @@ class SentryHandler {
         let tags = null;
         let latestEvent = null;
 
-        if (includeTags || checkDeepDetails) {
+        if (actualIncludeTags || checkDeepDetails) {
           try {
             tags = await sentryService.getIssueTags(
               this.getOrganization(args),
@@ -364,7 +377,7 @@ class SentryHandler {
           }
         }
 
-        if (trace || checkDeepDetails) {
+        if (actualTrace || checkDeepDetails) {
           try {
             latestEvent = await sentryService.getLatestEventForIssue(
               this.getOrganization(args),

@@ -60,47 +60,60 @@ class SentryFormatter {
       shortId: issueDetails.shortId,
       title: issueDetails.title || '<no title>',
       culprit: issueDetails.culprit,
-      permalink: issueDetails.permalink,
       level: issueDetails.level,
       status: issueDetails.status,
-      substatus: issueDetails.substatus,
       firstSeen: issueDetails.firstSeen,
       lastSeen: issueDetails.lastSeen,
       count: issueDetails.count,
       userCount: issueDetails.userCount || 0,
-      assignedTo: issueDetails.assignedTo
-        ? {
-            name: issueDetails.assignedTo.name,
-            email: issueDetails.assignedTo.email,
-          }
-        : null,
-      project: issueDetails.project
-        ? {
-            name: issueDetails.project.name,
-            slug: issueDetails.project.slug,
-          }
-        : null,
+      project: issueDetails.project?.name || 'Unknown',
       annotations: Array.isArray(issueDetails.annotations)
         ? issueDetails.annotations.map(a => ({ key: a.displayName, url: a.url }))
         : [],
     };
 
+    // Add permalink and assignedTo only in deep mode or if they exist
+    if (checkDeepDetails || issueDetails.assignedTo) {
+      formatted.assignedTo = issueDetails.assignedTo
+        ? {
+            name: issueDetails.assignedTo.name,
+            email: issueDetails.assignedTo.email,
+          }
+        : null;
+    }
+    
+    if (checkDeepDetails) {
+      formatted.permalink = issueDetails.permalink;
+      formatted.substatus = issueDetails.substatus;
+    }
+
+    // Add essential details always
+    formatted.platform = issueDetails.platform;
+    formatted.type = issueDetails.type;
+    formatted.isUnhandled = issueDetails.isUnhandled;
+    
+    // Add core metadata fields
+    if (issueDetails.metadata) {
+      const coreMetadata = {};
+      ['value', 'type', 'filename', 'function'].forEach(key => {
+        if (issueDetails.metadata[key]) {
+          coreMetadata[key] = issueDetails.metadata[key];
+        }
+      });
+      if (Object.keys(coreMetadata).length > 0) {
+        formatted.metadata = coreMetadata;
+      }
+    }
+
     // Add additional details when checkDeepDetails is true
     if (checkDeepDetails) {
-      formatted.metadata = issueDetails.metadata || {};
-      formatted.platform = issueDetails.platform;
-      formatted.logger = issueDetails.logger;
-      formatted.type = issueDetails.type;
-      formatted.groupingConfig = issueDetails.groupingConfig;
-      formatted.isSubscribed = issueDetails.isSubscribed;
-      formatted.isBookmarked = issueDetails.isBookmarked;
-      formatted.isPublic = issueDetails.isPublic;
       formatted.hasSeen = issueDetails.hasSeen;
-      formatted.numComments = issueDetails.numComments;
-      formatted.isUnhandled = issueDetails.isUnhandled;
-      formatted.shareId = issueDetails.shareId;
-      formatted.shortId = issueDetails.shortId;
       formatted.stats = issueDetails.stats;
+      
+      // Add full metadata in deep mode
+      if (issueDetails.metadata) {
+        formatted.metadata = issueDetails.metadata;
+      }
 
       // Add user data if available
       if (issueDetails.user) {
@@ -122,8 +135,8 @@ class SentryFormatter {
       }
     }
 
-    if (tagsArray) {
-      formatted.tagsSummary = this.extractRelevantTags(tagsArray, checkDeepDetails ? 10 : 3);
+    if (tagsArray && checkDeepDetails) {
+      formatted.tagsSummary = this.extractRelevantTags(tagsArray, 5);
     }
 
     // Add stacktrace from latest event
@@ -135,12 +148,11 @@ class SentryFormatter {
         const frames = stacktraceEntry.data.values[0].stacktrace.frames;
         formatted.stacktrace = frames
           .reverse() // More readable order
-          .slice(0, checkDeepDetails ? 50 : 20) // Show more frames in deep details mode
+          .slice(0, checkDeepDetails ? 20 : 10) // Limit frames for token efficiency
           .map(f => {
             const file = f.filename ? f.filename.split('/').pop() : '<unknown>';
             const func = f.function || '?';
-            const context = checkDeepDetails && f.context ? `\n${f.context.join('\n')}` : '';
-            return `${file}:${f.lineno} in ${func}${context}`;
+            return `${file}:${f.lineno} in ${func}`;
           })
           .join('\n');
 
@@ -207,29 +219,15 @@ class SentryFormatter {
       });
     }
 
-    if (issueObj.user) {
-      lines.push('\nUser Information:');
-      if (issueObj.user.email) lines.push(`Email: ${issueObj.user.email}`);
-      if (issueObj.user.username) lines.push(`Username: ${issueObj.user.username}`);
-      if (issueObj.user.ipAddress) lines.push(`IP Address: ${issueObj.user.ipAddress}`);
-    }
-
-    if (issueObj.release) {
-      lines.push('\nRelease Information:');
-      if (issueObj.release.version) lines.push(`Version: ${issueObj.release.version}`);
-      if (issueObj.release.dateCreated) lines.push(`Created: ${issueObj.release.dateCreated}`);
-      if (issueObj.release.dateReleased) lines.push(`Released: ${issueObj.release.dateReleased}`);
-    }
+    // Remove user and release info from standard output for token efficiency
 
     if (
       issueObj.isUnhandled !== undefined ||
-      issueObj.hasSeen !== undefined ||
-      issueObj.numComments !== undefined
+      issueObj.hasSeen !== undefined
     ) {
       lines.push('\nAdditional Status:');
       if (issueObj.isUnhandled !== undefined) lines.push(`Unhandled: ${issueObj.isUnhandled}`);
       if (issueObj.hasSeen !== undefined) lines.push(`Seen: ${issueObj.hasSeen}`);
-      if (issueObj.numComments !== undefined) lines.push(`Comments: ${issueObj.numComments}`);
     }
 
     if (issueObj.annotations && issueObj.annotations.length > 0) {
@@ -255,6 +253,7 @@ class SentryFormatter {
       lines.push('\nEnvironment Summary:');
       Object.entries(issueObj.tagsSummary).forEach(([tagKey, values]) => {
         const summaryStr = values
+          .slice(0, 3) // Limit to top 3 for token efficiency
           .map(v => `${v.name} (${v.percent !== null ? v.percent + '%' : v.count})`)
           .join(', ');
         lines.push(`${tagKey}: ${summaryStr}`);
