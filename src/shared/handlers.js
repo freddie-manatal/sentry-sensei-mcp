@@ -1,4 +1,4 @@
-const { DatetimeHandler, SentryHandler, JiraHandler } = require('../mcp/index.js');
+const { DatetimeHandler, SentryHandler, JiraHandler } = require('../handlers/index.js');
 
 /**
  * Create service handlers with credentials

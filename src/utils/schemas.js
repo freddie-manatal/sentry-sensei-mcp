@@ -21,14 +21,8 @@ const SentryIssueDetailsSchema = z.object({
 const SentryIssuesSchema = z.object({
   model: ModelSchema,
   organization: z.string().optional(),
-  project: z.union([
-    ProjectIdSchema,
-    z.array(ProjectIdSchema)
-  ]).optional(),
-  environment: z.union([
-    EnvironmentSchema,
-    z.array(EnvironmentSchema)
-  ]).optional(),
+  project: z.union([ProjectIdSchema, z.array(ProjectIdSchema)]).optional(),
+  environment: z.union([EnvironmentSchema, z.array(EnvironmentSchema)]).optional(),
   utc: z.boolean().default(true),
   sortBy: z.enum(['date', 'freq', 'inbox', 'new', 'trends', 'user']).default('freq'),
   issue: z.string().optional(),
@@ -40,23 +34,21 @@ const SentryIssuesSchema = z.object({
   dateTo: DateStringSchema,
   groupStatsPeriod: z.enum(['14d', '24h', 'auto']).optional(),
   query: z.string().optional(),
-  expand: z.array(z.enum([
-    'inbox',
-    'integrationIssues',
-    'latestEventHasAttachments',
-    'owners',
-    'pluginActions',
-    'pluginIssues',
-    'sentryAppIssues',
-    'sessions',
-  ])).optional(),
-  collapse: z.array(z.enum([
-    'base',
-    'filtered',
-    'lifetime',
-    'stats',
-    'unhandled'
-  ])).optional(),
+  expand: z
+    .array(
+      z.enum([
+        'inbox',
+        'integrationIssues',
+        'latestEventHasAttachments',
+        'owners',
+        'pluginActions',
+        'pluginIssues',
+        'sentryAppIssues',
+        'sessions',
+      ]),
+    )
+    .optional(),
+  collapse: z.array(z.enum(['base', 'filtered', 'lifetime', 'stats', 'unhandled'])).optional(),
   cursor: z.string().optional(),
   relativeDays: z.number().int().min(1).max(365).optional(),
 });
@@ -104,10 +96,10 @@ module.exports = {
   SentryProjectsSchema,
   JiraTicketDetailsSchema,
   DateTimeSchema,
-  
+
   // Helper
   validateSchema,
-  
+
   // Individual field schemas for reuse
   ModelSchema,
   IssueIdSchema,

@@ -54,7 +54,7 @@ class ErrorHandler {
    */
   static createValidationErrorResponse(error, toolName) {
     logger.error(`Validation error in ${toolName}:`, error.message);
-    
+
     return {
       content: [
         {
@@ -106,8 +106,8 @@ class ErrorHandler {
         };
 
       case 429:
-        const retryMessage = error.retryAfter 
-          ? `\n\nTry again in ${error.retryAfter} seconds.` 
+        const retryMessage = error.retryAfter
+          ? `\n\nTry again in ${error.retryAfter} seconds.`
           : '\n\nPlease try again later.';
         return {
           content: [
@@ -181,7 +181,6 @@ class ErrorHandler {
     // Handle general errors
     return this.createGeneralErrorResponse(error, toolName);
   }
-
 
   /**
    * Convert HTTP status codes to appropriate MCP errors

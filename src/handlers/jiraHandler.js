@@ -63,7 +63,11 @@ class JiraHandler {
 
   async getJiraTicketDetails(args) {
     try {
-      const validatedArgs = validateSchema(JiraTicketDetailsSchema, args, TOOL_NAMES.GET_JIRA_TICKET_DETAILS);
+      const validatedArgs = validateSchema(
+        JiraTicketDetailsSchema,
+        args,
+        TOOL_NAMES.GET_JIRA_TICKET_DETAILS,
+      );
       const { ticketKey, deepDetails } = validatedArgs;
 
       if (!ticketKey) {

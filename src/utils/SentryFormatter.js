@@ -81,7 +81,7 @@ class SentryFormatter {
           }
         : null;
     }
-    
+
     if (checkDeepDetails) {
       formatted.permalink = issueDetails.permalink;
       formatted.substatus = issueDetails.substatus;
@@ -91,7 +91,7 @@ class SentryFormatter {
     formatted.platform = issueDetails.platform;
     formatted.type = issueDetails.type;
     formatted.isUnhandled = issueDetails.isUnhandled;
-    
+
     // Add core metadata fields
     if (issueDetails.metadata) {
       const coreMetadata = {};
@@ -109,7 +109,7 @@ class SentryFormatter {
     if (checkDeepDetails) {
       formatted.hasSeen = issueDetails.hasSeen;
       formatted.stats = issueDetails.stats;
-      
+
       // Add full metadata in deep mode
       if (issueDetails.metadata) {
         formatted.metadata = issueDetails.metadata;
@@ -221,10 +221,7 @@ class SentryFormatter {
 
     // Remove user and release info from standard output for token efficiency
 
-    if (
-      issueObj.isUnhandled !== undefined ||
-      issueObj.hasSeen !== undefined
-    ) {
+    if (issueObj.isUnhandled !== undefined || issueObj.hasSeen !== undefined) {
       lines.push('\nAdditional Status:');
       if (issueObj.isUnhandled !== undefined) lines.push(`Unhandled: ${issueObj.isUnhandled}`);
       if (issueObj.hasSeen !== undefined) lines.push(`Seen: ${issueObj.hasSeen}`);

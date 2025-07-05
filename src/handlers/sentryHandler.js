@@ -1,14 +1,20 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 const { SentryService } = require('../services/index.js');
-const { Logger, SentryFormatter, TokenCounter, ErrorHandler, schemas } = require('../utils/index.js');
+const {
+  Logger,
+  SentryFormatter,
+  TokenCounter,
+  ErrorHandler,
+  schemas,
+} = require('../utils/index.js');
 const { TOOL_NAMES } = require('../tools/constants.js');
 
-const { 
+const {
   SentryIssueDetailsSchema,
   SentryIssuesSchema,
   SentryOrganizationsSchema,
   SentryProjectsSchema,
-  validateSchema 
+  validateSchema,
 } = schemas;
 
 const logger = new Logger(process.env.LOG_LEVEL || 'INFO');
@@ -222,7 +228,11 @@ class SentryHandler {
   // Get organizations
   async getOrganizations(args) {
     try {
-      const validatedArgs = validateSchema(SentryOrganizationsSchema, args, TOOL_NAMES.GET_SENTRY_ORGANIZATIONS);
+      const validatedArgs = validateSchema(
+        SentryOrganizationsSchema,
+        args,
+        TOOL_NAMES.GET_SENTRY_ORGANIZATIONS,
+      );
       const sentryService = this.createSentryService(validatedArgs);
       const response = await this.fetchOrganizations(sentryService);
       return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
@@ -234,7 +244,11 @@ class SentryHandler {
   // Get projects
   async getProjects(args) {
     try {
-      const validatedArgs = validateSchema(SentryProjectsSchema, args, TOOL_NAMES.GET_SENTRY_PROJECTS);
+      const validatedArgs = validateSchema(
+        SentryProjectsSchema,
+        args,
+        TOOL_NAMES.GET_SENTRY_PROJECTS,
+      );
       const sentryService = this.createSentryService(validatedArgs);
       const organization = this.getOrganization(validatedArgs);
       const response = await this.fetchProjects(sentryService, organization);
@@ -296,21 +310,19 @@ class SentryHandler {
 
   async getSentryIssueDetails(args) {
     try {
-      const validatedArgs = validateSchema(SentryIssueDetailsSchema, args, TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS);
+      const validatedArgs = validateSchema(
+        SentryIssueDetailsSchema,
+        args,
+        TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
+      );
       const sentryService = this.createSentryService(validatedArgs);
-      const { 
-        issueId, 
-        includeTags, 
-        environment, 
-        trace, 
-        deepDetails 
-      } = validatedArgs;
-      
+      const { issueId, includeTags, environment, trace, deepDetails } = validatedArgs;
+
       // Force optimization defaults unless explicitly requested
       const actualIncludeTags = includeTags === true ? true : false;
       const actualTrace = trace === false ? false : true; // Keep trace true by default for debugging
       const actualDeepDetails = deepDetails === true ? true : false;
-      
+
       const checkDeepDetails = actualDeepDetails;
 
       logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
