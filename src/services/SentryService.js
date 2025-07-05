@@ -225,6 +225,11 @@ class SentryService {
     return response;
   }
 
+  async getLatestEventForIssue(organization, issueId) {
+    const url = `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/events/latest/`;
+    return this.fetchJson(url, `Fetching latest event for issue ${issueId}`);
+  }
+
   async getIssueTags(organization, issueId, environment) {
     const response = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/tags/`,

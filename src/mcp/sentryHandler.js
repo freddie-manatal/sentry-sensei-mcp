@@ -264,38 +264,64 @@ class SentryHandler {
 
   async getSentryIssueDetails(args) {
     const sentryService = this.createSentryService(args);
-    const organization = this.getOrganization(args);
-    const issueId = args.issueId;
-    const isCheckDeepDetails = args.checkDeepDetails;
+    const {
+      organization,
+      issueId,
+      includeTags,
+      environment,
+      trace,
+      checkDeepDetails,
+    } = args;
+
     try {
+      // Fetch issue details
+      logger.info(`🔎 Fetching details for Sentry issue: ${issueId}`);
       const issueDetails = await sentryService.getIssueDetails(organization, issueId);
-      const issueTags = args.includeTags
-        ? await sentryService.getIssueTags(organization, issueId, args.environment)
-        : null;
+      logger.info(`✅ Fetched details for issue: ${issueId}`);
 
-      // Use SentryFormatter to generate compact object and markdown
-      const formattedIssue = SentryFormatter.formatIssueDetails(issueDetails, issueTags);
+      // Always fetch tags if checkDeepDetails is true
+      let tags = null;
+      if (includeTags || checkDeepDetails) {
+        try {
+          logger.info(`🏷️ Fetching tags for issue: ${issueId}`);
+          tags = await sentryService.getIssueTags(organization, issueId, environment);
+          logger.info(`✅ Fetched tags for issue: ${issueId}`);
+        } catch (e) {
+          logger.warn(`Could not fetch tags for issue ${issueId}: ${e.message}`);
+        }
+      }
 
+      // Always fetch latest event if checkDeepDetails is true
+      let latestEvent = null;
+      if (trace || checkDeepDetails) {
+        try {
+          logger.info(`📄 Fetching latest event for issue ${issueId} to get stacktrace.`);
+          latestEvent = await sentryService.getLatestEventForIssue(organization, issueId);
+          logger.info(`✅ Fetched latest event for issue ${issueId}.`);
+        } catch (e) {
+          logger.warn(`Could not fetch latest event for issue ${issueId}: ${e.message}`);
+          // Continue without stacktrace
+        }
+      }
+
+      // Format with SentryFormatter
       const currentDateInfo = this.getCurrentDateInfo();
+      const formattedIssue = SentryFormatter.formatIssueDetails(
+        issueDetails,
+        tags,
+        latestEvent,
+        checkDeepDetails // Pass checkDeepDetails to formatter
+      );
       const markdown = SentryFormatter.issueToMarkdown(formattedIssue, currentDateInfo);
 
-      const responseContext = {
+      return {
         content: [
           {
             type: 'text',
-            text: `${markdown}`,
+            text: `${markdown}\n\n**Detailed Information:**\n${JSON.stringify(formattedIssue, null, 2)}`,
           },
         ],
       };
-      if (isCheckDeepDetails) {
-        const detailsInfo = `\n\n**Detailed Information (JSON):**\n${JSON.stringify(formattedIssue, null, 2)}`;
-        responseContext.content.push({
-          type: 'text',
-          text: `${detailsInfo}`,
-        });
-      }
-
-      return responseContext;
     } catch (error) {
       logger.error('Error fetching Sentry issue details:', error);
       throw error;

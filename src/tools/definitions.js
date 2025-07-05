@@ -234,6 +234,10 @@ const TOOL_DEFINITIONS = [
           type: 'string',
           description: 'Environment name (e.g., "production", "staging", "**pr**")',
         },
+        trace: {
+          type: 'boolean',
+          description: 'Include stack trace from the latest event in the response. Default: false',
+        },
         checkDeepDetails: {
           type: 'boolean',
           description:
