@@ -1,18 +1,11 @@
-# 1.0.0 (2025-07-05)
-
-
-### Bug Fixes
-
-* docs ([43e82f1](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/43e82f1785d8e855fd1486f9373848e292e08b08))
-* package.json ([68fa415](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/68fa415ec7a100e736970c770ed583aba9ea338c))
-* sorting ([611b31b](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/611b31b7519fc82eb827f98b9e56ac3f35b763e9))
+# [1.1.0-alpha.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.0.0...v1.1.0-alpha.1) (2025-07-05)
 
 
 ### Features
 
-* sentry details ([e9f1f30](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/e9f1f30d0f241f63bb15a2091def488ba4f81a7e))
+* update package.json to modify CLI entry points ([#5](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/5)) ([676b5e1](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/676b5e1850ecc82a911168615475ba3d4c44e967))
 
-# 1.0.0-alpha.1 (2025-07-05)
+# 1.0.0 (2025-07-05)
 
 
 ### Bug Fixes
