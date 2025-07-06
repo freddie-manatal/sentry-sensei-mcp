@@ -29,7 +29,6 @@ class MCPServer {
    */
   async initialize() {
     this.logger.info('Initializing MCP server');
-
     return {
       protocolVersion: '2024-11-05',
       capabilities: this.capabilities,
@@ -52,8 +51,55 @@ class MCPServer {
   async listTools() {
     this.logger.info('Listing available tools');
 
+    // Check authentication status first
+    const credentials = await extractCredentials();
+    const hasSentryAuth = !!(
+      credentials.sentry.token &&
+      credentials.sentry.host &&
+      credentials.sentry.organization
+    );
+    const hasJiraAuth = !!(credentials.jira.token && credentials.jira.cloudId);
+
+    // If no authentication, return empty tools list
+    if (!hasSentryAuth && !hasJiraAuth) {
+      this.logger.warn('No authentication found - hiding tools list');
+      return {
+        tools: [],
+      };
+    }
+
+    // Filter tools based on available authentication
+    const availableTools = [];
+
+    if (hasSentryAuth) {
+      const sentryTools = TOOL_DEFINITIONS.filter(
+        tool => tool.name.includes('sentry') && ENABLED_TOOLS.includes(tool.name),
+      );
+      availableTools.push(...sentryTools);
+    }
+
+    if (hasJiraAuth) {
+      const jiraTools = TOOL_DEFINITIONS.filter(
+        tool => tool.name.includes('jira') && ENABLED_TOOLS.includes(tool.name),
+      );
+      availableTools.push(...jiraTools);
+    }
+
+    // Add service-agnostic tools if any auth is available
+    const generalTools = TOOL_DEFINITIONS.filter(
+      tool =>
+        !tool.name.includes('sentry') &&
+        !tool.name.includes('jira') &&
+        ENABLED_TOOLS.includes(tool.name),
+    );
+    availableTools.push(...generalTools);
+
+    this.logger.info(
+      `Showing ${availableTools.length} tools (Sentry: ${hasSentryAuth}, Jira: ${hasJiraAuth})`,
+    );
+
     return {
-      tools: TOOL_DEFINITIONS.filter(tool => ENABLED_TOOLS.includes(tool.name)),
+      tools: availableTools,
     };
   }
 
@@ -64,7 +110,7 @@ class MCPServer {
    * @param {Object} context - Request context (for credential extraction)
    * @returns {Object} Tool execution result
    */
-  async callTool(toolName, toolArgs = {}, context = {}) {
+  async callTool(toolName, toolArgs = {}) {
     if (!toolName) {
       throw new McpError(ErrorCode.InvalidParams, 'Tool name is required');
     }
@@ -75,8 +121,25 @@ class MCPServer {
     const startTime = Date.now();
 
     try {
-      // Extract credentials from context (headers, env, etc.)
-      const credentials = extractCredentials(context);
+      // Extract credentials from stored OAuth tokens
+      const credentials = await extractCredentials();
+
+      // Check authentication status
+      const authStatus = this.checkAuthenticationStatus(credentials, toolName);
+      if (!authStatus.canProceed) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Authentication required for ${authStatus.requiredService}. Please authenticate using: /v1/sse?service=${authStatus.requiredService}&org=your-org`,
+          {
+            missingAuth: authStatus.missingAuth,
+            authUrls: {
+              sentry: '/v1/sse?service=sentry&org=your-org',
+              atlassian: '/v1/sse?service=atlassian&org=your-org',
+            },
+          },
+        );
+      }
+
       const { sentryHandler, jiraHandler, datetimeHandler } = createHandlers(credentials);
 
       let result;
@@ -263,6 +326,204 @@ class MCPServer {
           id: id || null,
         },
       };
+    }
+  }
+
+  /**
+   * Check authentication status for tool execution
+   * @param {Object} credentials - Extracted credentials
+   * @param {string} toolName - Name of the tool being called
+   * @returns {Object} Authentication status
+   */
+  checkAuthenticationStatus(credentials, toolName) {
+    const sentryTools = [
+      'get_sentry_organizations',
+      'get_sentry_projects',
+      'get_sentry_issues',
+      'get_sentry_issue_details',
+      'search_sentry_issues',
+    ];
+
+    const jiraTools = [
+      'get_jira_projects',
+      'get_jira_issues',
+      'get_jira_issue_details',
+      'create_jira_issue',
+      'update_jira_issue',
+      'add_jira_comment',
+      'search_jira_issues',
+    ];
+
+    const hasSentryAuth = !!(
+      credentials.sentry.token &&
+      credentials.sentry.host &&
+      credentials.sentry.organization
+    );
+    const hasJiraAuth = !!(credentials.jira.token && credentials.jira.cloudId);
+
+    let requiredService = null;
+    const missingAuth = [];
+
+    if (sentryTools.includes(toolName) && !hasSentryAuth) {
+      requiredService = 'sentry';
+      missingAuth.push('sentry');
+    }
+
+    if (jiraTools.includes(toolName) && !hasJiraAuth) {
+      requiredService = 'atlassian';
+      missingAuth.push('atlassian');
+    }
+
+    // For tools that need both services, check both
+    const needsBothServices = ['create_jira_issue']; // Tools that might use both
+    if (needsBothServices.includes(toolName)) {
+      if (!hasSentryAuth) missingAuth.push('sentry');
+      if (!hasJiraAuth) missingAuth.push('atlassian');
+      if (missingAuth.length > 0) {
+        requiredService = missingAuth[0]; // Primary service needed
+      }
+    }
+
+    return {
+      canProceed: missingAuth.length === 0,
+      requiredService,
+      missingAuth,
+      hasSentryAuth,
+      hasJiraAuth,
+    };
+  }
+
+  /**
+   * Initialize authentication sessions on server start
+   */
+  async initializeAuthSessions() {
+    this.logger.info('🔐 Checking authentication status...');
+
+    const credentials = await extractCredentials();
+    const hasSentryAuth = !!(
+      credentials.sentry.token &&
+      credentials.sentry.host &&
+      credentials.sentry.organization
+    );
+    const hasJiraAuth = !!(credentials.jira.token && credentials.jira.cloudId);
+
+    if (!hasSentryAuth || !hasJiraAuth) {
+      this.logger.warn('⚠️  Authentication required for full functionality');
+
+      const authUrls = [];
+
+      if (!hasSentryAuth) {
+        // Direct Sentry OAuth URL
+        const sentryClientId = process.env.SENTRY_CLIENT_ID;
+        if (sentryClientId) {
+          const state = `sentry_${this.generateRandomString(16)}`;
+          const sentryAuthUrl =
+            `https://sentry.io/oauth/authorize/?` +
+            `response_type=code&` +
+            `client_id=${encodeURIComponent(sentryClientId)}&` +
+            `redirect_uri=${encodeURIComponent(`${this.getServerBaseUrl()}/v1/callback`)}&` +
+            `state=${encodeURIComponent(state)}&` +
+            `scope=org:read,project:read,event:read,team:read`;
+          authUrls.push(sentryAuthUrl);
+          this.logger.info('🔑 Sentry authentication needed - opening official OAuth page');
+        } else {
+          this.logger.warn('⚠️  SENTRY_CLIENT_ID not configured - skipping Sentry auth');
+        }
+      }
+
+      if (!hasJiraAuth) {
+        // Direct Atlassian OAuth URL
+        const atlassianClientId = process.env.ATLASSIAN_CLIENT_ID;
+        if (atlassianClientId) {
+          const scopes = 'read:jira-work read:jira-user write:jira-work read:account read:me';
+          const state = `atlassian_${this.generateRandomString(16)}`;
+
+          const atlassianAuthUrl =
+            `https://auth.atlassian.com/authorize?` +
+            `audience=api.atlassian.com&` +
+            `client_id=${encodeURIComponent(atlassianClientId)}&` +
+            `scope=${encodeURIComponent(scopes)}&` +
+            `redirect_uri=${encodeURIComponent(`${this.getServerBaseUrl()}/v1/callback`)}&` +
+            `state=${encodeURIComponent(state)}&` +
+            `response_type=code&` +
+            `prompt=consent`;
+          authUrls.push(atlassianAuthUrl);
+          this.logger.info('🔑 Atlassian authentication needed - opening official OAuth page');
+        } else {
+          this.logger.warn('⚠️  ATLASSIAN_CLIENT_ID not configured - skipping Atlassian auth');
+        }
+      }
+
+      if (authUrls.length > 0) {
+        this.logger.info('🚀 Auto-opening official OAuth pages for authentication...');
+        this.logger.info('💡 Complete the OAuth process in your browser, then return to continue using MCP tools');
+        await this.openAuthUrls(authUrls);
+      }
+    } else {
+      this.logger.info('✅ All services authenticated successfully');
+    }
+  }
+
+  /**
+   * Get server base URL for OAuth redirects
+   */
+  getServerBaseUrl() {
+    // Check for common environment variables
+    const deployedUrl = process.env.URL || process.env.DEPLOY_URL;
+    if (deployedUrl) {
+      return deployedUrl;
+    }
+
+    // Default to localhost for development
+    const port = process.env.PORT || 8888;
+    return `http://localhost:${port}`;
+  }
+
+  /**
+   * Generate a random string for OAuth state parameter
+   */
+  generateRandomString(length) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  /**
+   * Open OAuth URLs in browser automatically
+   */
+  async openAuthUrls(urls) {
+    try {
+      const { exec } = require('child_process');
+
+      for (const url of urls) {
+        this.logger.info(`🌐 Opening: ${url}`);
+
+        // Cross-platform browser opening
+        const command =
+          process.platform === 'darwin'
+            ? `open "${url}"`
+            : process.platform === 'win32'
+              ? `start "${url}"`
+              : `xdg-open "${url}"`;
+
+        exec(command, error => {
+          if (error) {
+            this.logger.warn(`Failed to auto-open browser: ${error.message}`);
+            this.logger.info(`Please manually visit: ${url}`);
+          }
+        });
+
+        // Small delay between opening tabs
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      this.logger.info('💡 Complete OAuth in the opened browser tabs');
+    } catch (error) {
+      this.logger.error('Failed to open OAuth URLs:', error);
+      this.logger.info('💡 Please manually visit the authentication URLs shown above');
     }
   }
 }

@@ -195,10 +195,14 @@ class HttpTransport {
   async start() {
     return new Promise((resolve, reject) => {
       try {
-        this.server = this.app.listen(this.port, () => {
+        this.server = this.app.listen(this.port, async () => {
           this.logger.info(`🚀 MCP HTTP server running on port ${this.port}`);
           this.logger.info(`📡 MCP endpoint: http://localhost:${this.port}/mcp`);
           this.logger.info(`🔄 SSE streaming: http://localhost:${this.port}/mcp/stream/:sessionId`);
+          
+          // Initialize authentication sessions
+          await this.mcpServer.initializeAuthSessions();
+          
           resolve();
         });
 

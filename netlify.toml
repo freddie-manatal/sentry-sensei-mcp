@@ -8,4 +8,29 @@
 [[redirects]]
   from = "/mcp"
   to = "/.netlify/functions/mcp"
-  status = 200 
+  status = 200
+
+[[redirects]]
+  from = "/v1/sse"
+  to = "/.netlify/functions/mcp/v1/sse"
+  status = 200
+
+[[redirects]]
+  from = "/v1/authorize"
+  to = "/.netlify/functions/mcp/v1/authorize"
+  status = 200
+
+[[redirects]]
+  from = "/v1/callback"
+  to = "/.netlify/functions/mcp/v1/callback"
+  status = 200
+
+[[redirects]]
+  from = "/auth/*"
+  to = "/.netlify/functions/mcp/auth/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/mcp/health"
+  status = 200

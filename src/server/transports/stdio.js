@@ -63,7 +63,7 @@ class StdioTransport {
       const { name, arguments: args } = request.params;
 
       try {
-        const result = await this.mcpServer.callTool(name, args, this.options.credentials || {});
+        const result = await this.mcpServer.callTool(name, args);
         return result;
       } catch (error) {
         this.logger.error('Error in tool call:', error);
@@ -75,6 +75,9 @@ class StdioTransport {
   async start() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
+
+    // Initialize authentication sessions
+    await this.mcpServer.initializeAuthSessions();
 
     // Only log to stderr in non-MCP mode, or to log file in MCP mode
     if (!this.logger.isMCPMode()) {
