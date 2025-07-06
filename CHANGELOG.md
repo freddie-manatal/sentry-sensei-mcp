@@ -1,3 +1,15 @@
+# [1.1.0-alpha-fix-release.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.0.0...v1.1.0-alpha-fix-release.1) (2025-07-06)
+
+
+### Bug Fixes
+
+* release ([3ea69b6](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/3ea69b68a8b2d44580ecb482378af71bcea4d29d))
+
+
+### Features
+
+* Update bin ([#6](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/6)) ([bc85d4b](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/bc85d4b9bf5f6f2442bcbff8abdab5b5d5ea7a46)), closes [#5](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/5)
+
 # [1.1.0-alpha.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.0.0...v1.1.0-alpha.1) (2025-07-05)
 
 

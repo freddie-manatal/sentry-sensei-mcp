@@ -2,11 +2,11 @@
   "branches": [
     "main",
     {
-      "name": "beta",
+      "name": "alpha-*",
       "prerelease": true
     },
     {
-      "name": "alpha",
+      "name": "beta-*",
       "prerelease": true
     }
   ],
@@ -49,4 +49,4 @@
       }
     ]
   ]
-} 
+}
