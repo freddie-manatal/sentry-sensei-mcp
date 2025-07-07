@@ -130,8 +130,13 @@ class SentryService {
         endDate = endDate || range.endDate;
       }
 
-      params.append('start', startDate);
-      params.append('end', endDate);
+      // Remove 'Z' suffix from dates for Sentry API compatibility
+      const formatDateForSentry = dateStr => {
+        return dateStr ? dateStr.replace(/Z$/, '') : dateStr;
+      };
+
+      params.append('start', formatDateForSentry(startDate));
+      params.append('end', formatDateForSentry(endDate));
     }
 
     // Add groupStatsPeriod if provided
