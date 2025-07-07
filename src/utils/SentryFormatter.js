@@ -276,19 +276,48 @@ class SentryFormatter {
   }
 
   // ---------- Project helpers ----------
-  static formatProject(proj) {
+  static formatProject(proj, onlyProduction = true) {
     if (!proj) return null;
+
+    // Filter environments based on onlyProduction flag
+    let environments = [];
+    if (Array.isArray(proj.environments)) {
+      environments = onlyProduction
+        ? proj.environments.filter(env => env.toLowerCase().includes('production'))
+        : proj.environments;
+    }
+
     return {
       id: proj.id,
       slug: proj.slug,
       name: proj.name,
       platform: proj.platform,
+      team: proj.team
+        ? {
+            id: proj.team.id,
+            slug: proj.team.slug,
+            name: proj.team.name,
+          }
+        : null,
+      teams: Array.isArray(proj.teams)
+        ? proj.teams.map(team => ({
+            id: team.id,
+            slug: team.slug,
+            name: team.name,
+          }))
+        : [],
+      environments: environments,
+      isBookmarked: proj.isBookmarked,
+      isMember: proj.isMember,
+      hasAccess: proj.hasAccess,
+      dateCreated: proj.dateCreated,
+      access: Array.isArray(proj.access) ? proj.access : [],
     };
   }
 
-  static formatProjectsList(projectsArray) {
+  static formatProjectsList(projectsArray, onlyProduction = true) {
     if (!Array.isArray(projectsArray)) return [];
-    return projectsArray.map(p => this.formatProject(p));
+    return projectsArray.map(p => this.formatProject(p, onlyProduction));
   }
 }
 

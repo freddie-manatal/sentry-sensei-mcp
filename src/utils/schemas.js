@@ -52,6 +52,7 @@ const SentryOrganizationsSchema = z.object({
 const SentryProjectsSchema = z.object({
   model: ModelSchema,
   organization: z.string().optional(),
+  onlyProduction: z.boolean().default(true),
 });
 
 // JIRA schemas

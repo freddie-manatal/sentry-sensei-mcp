@@ -34,11 +34,18 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: TOOL_NAMES.GET_SENTRY_PROJECTS,
-    description: 'List projects in a Sentry organization with their IDs, names, and platforms.',
+    description:
+      'List projects in a Sentry organization with their IDs, names, platforms, teams, and environments. Use onlyProduction=true to filter environments to only show production environments.',
     inputSchema: {
       type: 'object',
       properties: {
         ...SHARED_PROPERTIES,
+        onlyProduction: {
+          type: 'boolean',
+          description:
+            'Filter environments to show only production environments. When true, only environments containing "production" are shown. When false, all environments are displayed. Default: true',
+          default: true,
+        },
       },
       required: [],
     },
