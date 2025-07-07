@@ -292,26 +292,7 @@ class SentryFormatter {
       slug: proj.slug,
       name: proj.name,
       platform: proj.platform,
-      team: proj.team
-        ? {
-            id: proj.team.id,
-            slug: proj.team.slug,
-            name: proj.team.name,
-          }
-        : null,
-      teams: Array.isArray(proj.teams)
-        ? proj.teams.map(team => ({
-            id: team.id,
-            slug: team.slug,
-            name: team.name,
-          }))
-        : [],
       environments: environments,
-      isBookmarked: proj.isBookmarked,
-      isMember: proj.isMember,
-      hasAccess: proj.hasAccess,
-      dateCreated: proj.dateCreated,
-      access: Array.isArray(proj.access) ? proj.access : [],
     };
   }
 
