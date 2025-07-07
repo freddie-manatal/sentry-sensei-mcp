@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.3...v1.2.0) (2025-07-07)
+
+
+### Features
+
+* enhance JIRA and Sentry services with detailed API documentation ([c39ffa3](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/c39ffa3e2d20150a3d6b4516471d16d4edb1a0bf))
+
 ## [1.1.3](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.2...v1.1.3) (2025-07-07)
 
 
