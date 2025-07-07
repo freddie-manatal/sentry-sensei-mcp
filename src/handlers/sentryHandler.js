@@ -102,7 +102,7 @@ class SentryHandler {
   }
 
   // Fetch projects for an organization or all projects
-  async fetchProjects(sentryService, organization = null, onlyProduction = true) {
+  async fetchProjects(sentryService, organization = null, onlyProduction = true, preview = null) {
     if (organization) {
       logger.info(
         `🏗️ Fetching Sentry projects for organization: ${organization}${onlyProduction ? ' (production environments only)' : ''}`,
@@ -116,9 +116,11 @@ class SentryHandler {
     const projects = await sentryService.getProjects(organization);
     logger.info(`📊 Found ${projects.length} projects`);
 
-    const formattedProjects = SentryFormatter.formatProjectsList(projects, onlyProduction);
+    const formattedProjects = SentryFormatter.formatProjectsList(projects, onlyProduction, preview);
 
-    if (onlyProduction) {
+    if (preview) {
+      logger.info(`🔧 Filtering environments for PR: ${preview}`);
+    } else if (onlyProduction) {
       logger.info('🔧 Filtering environments to show only production environments');
     }
 
@@ -263,6 +265,7 @@ class SentryHandler {
         sentryService,
         organization,
         validatedArgs.onlyProduction,
+        validatedArgs.preview,
       );
       return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
     } catch (error) {

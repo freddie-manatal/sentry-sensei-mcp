@@ -276,15 +276,55 @@ class SentryFormatter {
   }
 
   // ---------- Project helpers ----------
-  static formatProject(proj, onlyProduction = true) {
+  static formatProject(proj, onlyProduction = true, preview = null) {
     if (!proj) return null;
 
-    // Filter environments based on onlyProduction flag
+    // Filter environments based on parameters
     let environments = [];
     if (Array.isArray(proj.environments)) {
-      environments = onlyProduction
-        ? proj.environments.filter(env => env.toLowerCase().includes('production'))
-        : proj.environments;
+      if (preview) {
+        // Filter for specific PR number - only environments containing this PR number
+        environments = proj.environments.filter(env => {
+          return env.toLowerCase().includes(preview.toLowerCase());
+        });
+      } else if (onlyProduction) {
+        // Only production environments
+        environments = proj.environments.filter(env => env.toLowerCase().includes('production'));
+      } else {
+        // Staging and production mandatory, plus up to 5 others (URLs/PR environments)
+        const production = proj.environments.filter(env =>
+          env.toLowerCase().includes('production'),
+        );
+
+        // Check for true staging environment (not URLs containing staging)
+        const isURL = str => {
+          // Simple URL regex to detect domain-like patterns
+          return (
+            /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(str) ||
+            str.includes('.com') ||
+            str.includes('.net') ||
+            str.includes('.io') ||
+            str.includes('.org') ||
+            str.includes('.co') ||
+            str.includes('.dev')
+          );
+        };
+
+        const staging = proj.environments.filter(env => {
+          const lower = env.toLowerCase();
+          // Must be exactly "staging" and not be a URL
+          return lower === 'staging' && !isURL(lower);
+        });
+
+        const others = proj.environments
+          .filter(env => {
+            const lower = env.toLowerCase();
+            return !lower.includes('production') && !(lower === 'staging' && !isURL(lower));
+          })
+          .slice(0, 5); // Limit to 5 others
+
+        environments = [...production, ...staging, ...others];
+      }
     }
 
     return {
@@ -296,9 +336,9 @@ class SentryFormatter {
     };
   }
 
-  static formatProjectsList(projectsArray, onlyProduction = true) {
+  static formatProjectsList(projectsArray, onlyProduction = true, preview = null) {
     if (!Array.isArray(projectsArray)) return [];
-    return projectsArray.map(p => this.formatProject(p, onlyProduction));
+    return projectsArray.map(p => this.formatProject(p, onlyProduction, preview));
   }
 }
 

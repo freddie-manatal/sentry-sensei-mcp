@@ -43,8 +43,13 @@ const TOOL_DEFINITIONS = [
         onlyProduction: {
           type: 'boolean',
           description:
-            'Filter environments to show only production environments. When true, only environments containing "production" are shown. When false, all environments are displayed. Default: true',
+            'Environment filtering strategy. When true: only production environments. When false: production + staging (mandatory) + up to 5 other environments (development/PR/URLs). Default: true',
           default: true,
+        },
+        preview: {
+          type: 'string',
+          description:
+            'Filter for specific PR environment by number. When provided, only returns environments containing this PR number (e.g., "447" returns "ext-pr-447.preview.manatal-staging.com"). Overrides onlyProduction setting.',
         },
       },
       required: [],
