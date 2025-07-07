@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.3.0...v1.4.0) (2025-07-07)
+
+
+### Features
+
+* add preview filter to Sentry project fetching and formatting ([ad7bc77](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/ad7bc773a56cca181d51f7a34ac0292cb9b3e0eb))
+
 # [1.3.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.2.0...v1.3.0) (2025-07-07)
 
 
