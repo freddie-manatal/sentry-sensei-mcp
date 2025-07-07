@@ -135,7 +135,7 @@ class SentryService {
         return dateStr ? dateStr.replace(/Z$/, '') : dateStr;
       };
 
-      params.f('start', formatDateForSentry(startDate));
+      params.append('start', formatDateForSentry(startDate));
       params.append('end', formatDateForSentry(endDate));
     }
 
