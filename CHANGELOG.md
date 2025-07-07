@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.0...v1.1.1) (2025-07-07)
+
+
+### Bug Fixes
+
+* sentry date format ([8a586a9](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/8a586a97a0d2103fc1404f9c5f035c047a05604b))
+
 # [1.1.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.0.0...v1.1.0) (2025-07-06)
 
 
