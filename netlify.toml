@@ -5,6 +5,14 @@
 [build.environment]
   NODE_VERSION = "18"
 
+[functions."mcp"]
+  timeout = 30
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/mcp?health"
+  status = 200
+
 [[redirects]]
   from = "/mcp"
   to = "/.netlify/functions/mcp"

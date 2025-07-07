@@ -49,16 +49,30 @@ class ServerlessTransport {
    * Handle GET requests
    */
   async handleGetRequest(event) {
-    const path = event.path || event.rawPath;
+    const path = event.path || event.rawPath || '';
+    const pathInfo = event.pathParameters?.proxy || '';
 
-    // Health check endpoint
-    if (path === '/health' || path === '/.netlify/functions/mcp/health') {
+    this.logger.debug(`Request path: ${path}, pathInfo: ${pathInfo}`);
+
+    // Health check endpoint - check multiple possible path formats
+    if (
+      path === '/health' ||
+      path === '/.netlify/functions/mcp/health' ||
+      path.endsWith('/health') ||
+      pathInfo === 'health' ||
+      (event.queryStringParameters && 'health' in event.queryStringParameters)
+    ) {
       return this.createResponse(200, {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         server: this.mcpServer.serverInfo.name,
         version: this.mcpServer.serverInfo.version,
         environment: 'serverless',
+        debug: {
+          path: path,
+          pathInfo: pathInfo,
+          headers: event.headers,
+        },
       });
     }
 
@@ -68,7 +82,7 @@ class ServerlessTransport {
       version: this.mcpServer.serverInfo.version,
       endpoints: {
         mcp: 'POST /.netlify/functions/mcp',
-        health: 'GET /.netlify/functions/mcp/health',
+        health: 'GET /health',
       },
     });
   }
