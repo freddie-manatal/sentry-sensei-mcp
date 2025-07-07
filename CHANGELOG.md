@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.1...v1.1.2) (2025-07-07)
+
+
+### Bug Fixes
+
+* sentry date validation ([75ba038](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/75ba03875b58da00b0d83e73de08b7306fc1594a))
+
 ## [1.1.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.0...v1.1.1) (2025-07-07)
 
 
