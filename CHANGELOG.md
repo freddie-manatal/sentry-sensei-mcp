@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.2.0...v1.3.0) (2025-07-07)
+
+
+### Features
+
+* add onlyProduction filter to Sentry project fetching and formatting ([bc021a7](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/bc021a75acdc41457511a25662e3bae3d8b9bd9d))
+
 # [1.2.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.3...v1.2.0) (2025-07-07)
 
 
