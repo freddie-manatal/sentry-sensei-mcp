@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.4.0...v1.5.0) (2025-07-07)
+
+
+### Features
+
+* enhance health check endpoint handling and add debug information ([a3a02b1](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/a3a02b10cce62cd6ca8aef7d8ea8f33bcea9a691))
+
 # [1.4.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.3.0...v1.4.0) (2025-07-07)
 
 
