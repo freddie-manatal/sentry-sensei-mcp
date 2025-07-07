@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.2...v1.1.3) (2025-07-07)
+
+
+### Bug Fixes
+
+* typo ([553ed8d](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/553ed8d74198b3f3018a6ddbfee85cf4fb1ffd70))
+
 ## [1.1.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.1.1...v1.1.2) (2025-07-07)
 
 
