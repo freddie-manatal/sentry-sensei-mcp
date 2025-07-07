@@ -285,7 +285,6 @@ class SentryHandler {
         statsPeriod: validatedArgs.statsPeriod,
         groupStatsPeriod: validatedArgs.groupStatsPeriod,
         query: validatedArgs.query,
-        expand: validatedArgs.expand,
         collapse: validatedArgs.collapse,
         cursor: validatedArgs.cursor,
       };

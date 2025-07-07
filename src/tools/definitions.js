@@ -45,7 +45,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: TOOL_NAMES.GET_SENTRY_ISSUES,
-    description: `Get list of Sentry issues with filtering options. IMPORTANT: First call GET_SENTRY_PROJECTS to get project IDs before using this tool. Supports environment, date range, error type, and query filtering. CURRENT DATE: ${getCurrentDateInfo().currentDate}`,
+    description: `Search and filter Sentry issues with precise targeting. KEY WORKFLOW: 1) Always call GET_SENTRY_PROJECTS first to get project IDs, 2) Use errorMessage to INCLUDE specific error types (e.g., **APIError**), 3) Use excludeErrorType to EXCLUDE unwanted errors (e.g., **404**), 4) Combine filters for precise results. COMMON PATTERNS: "API errors excluding 404s" = errorMessage:"**APIError**" + excludeErrorType:"**404**", "Database issues but not timeouts" = errorMessage:"**DatabaseError**" + excludeErrorType:"**TimeoutError**". CURRENT DATE: ${getCurrentDateInfo().currentDate}`,
     inputSchema: {
       type: 'object',
       properties: {
@@ -71,7 +71,8 @@ const TOOL_DEFINITIONS = [
           oneOf: [
             {
               type: 'string',
-              description: 'Single environment name (e.g., "production", "staging", "**pr**")',
+              description:
+                'Target environment: "production", "staging", "development", "testing", or custom names',
             },
             {
               type: 'array',
@@ -81,7 +82,8 @@ const TOOL_DEFINITIONS = [
               description: 'Array of environment names',
             },
           ],
-          description: 'Environment name(s) to filter by.',
+          description:
+            'Filter issues by deployment environment(s). Use single environment or array for multiple environments.',
         },
         utc: {
           type: 'boolean',
@@ -101,12 +103,12 @@ const TOOL_DEFINITIONS = [
         excludeErrorType: {
           type: 'string',
           description:
-            "Exclude specific error type from issues (e.g., 'NullPointerException', '**404**', '**500**'), this is not a shortId of the issue, it is the error message or type of the issue",
+            "EXCLUDE filter: Remove issues matching this error type/message. FORMAT: Use **ErrorType** syntax. COMMON EXCLUSIONS: Noise (**404**, **TimeoutError**), Known Issues (**MaintenanceError**), HTTP codes (**401**, **500**), Infrastructure (**ConnectionError**). EXAMPLE: To exclude 404s use excludeErrorType:'**404**'. COMBINE with errorMessage for precise filtering (e.g., API errors but not 404s).",
         },
         errorMessage: {
           type: 'string',
           description:
-            "Filter by error message or type (e.g., '**404**', '**500**', '**APIError**', '**TypeError**'), this is not a shortId of the issue, it is the error message or type of the issue",
+            "INCLUDE filter: Show ONLY issues matching this error type/message. FORMAT: Use **ErrorType** syntax. COMMON TYPES: Frontend (**TypeError**, **ReferenceError**), Backend (**DatabaseError**, **ValidationError**), API (**APIError**, **HTTPError**), Auth (**AuthError**), HTTP Status (**404**, **500**), Custom (**PaymentError**). EXAMPLE: To find API errors use errorMessage:'**APIError**'.",
         },
         limit: {
           type: 'integer',
@@ -135,24 +137,7 @@ const TOOL_DEFINITIONS = [
         query: {
           type: 'string',
           description:
-            'Search query for filtering issues. Empty string returns all results. Default query: is:unresolved issue.priority:[high,medium] issue:shortIdOfIssue',
-        },
-        expand: {
-          type: 'array',
-          items: {
-            type: 'string',
-            enum: [
-              'inbox',
-              'integrationIssues',
-              'latestEventHasAttachments',
-              'owners',
-              'pluginActions',
-              'pluginIssues',
-              'sentryAppIssues',
-              'sessions',
-            ],
-          },
-          description: 'Additional data to include in the response',
+            'Advanced Sentry search syntax for complex filtering. DEFAULT: "is:unresolved issue.priority:[high,medium] issue:shortIdOfIssue". SYNTAX: Status ("is:unresolved"), HTTP Codes ("error.type:404"), Messages ("message:**timeout**"), Priority ("issue.priority:[high,medium]"), Users ("has:user"), Environment ("environment:production"), Combine ("is:unresolved AND message:**API**"). LEAVE EMPTY for standard errorMessage/excludeErrorType filtering.',
         },
         collapse: {
           type: 'array',

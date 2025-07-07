@@ -1,6 +1,23 @@
 const JiraFormatter = require('../utils/JiraFormatter');
 
+/**
+ * JIRA Service for interacting with JIRA Cloud REST API v3
+ *
+ * Uses Basic Authentication with email and API token
+ * Base URL: https://{domain}/rest/api/3
+ *
+ * References:
+ * - JIRA Cloud REST API: https://developer.atlassian.com/cloud/jira/platform/rest/v3/
+ * - Authentication: https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/
+ */
 class JiraService {
+  /**
+   * Initialize JIRA service with authentication credentials
+   *
+   * @param {string} atlassianDomain - JIRA domain (e.g., 'company.atlassian.net')
+   * @param {string} jiraAccessToken - JIRA API token
+   * @param {string} jiraUserEmail - JIRA user email for authentication
+   */
   constructor(atlassianDomain, jiraAccessToken, jiraUserEmail) {
     this.jiraAccessToken = jiraAccessToken;
     this.jiraUserEmail = jiraUserEmail;
@@ -8,6 +25,14 @@ class JiraService {
     this.apiBase = `https://${atlassianDomain}/rest/api/3`;
   }
 
+  /**
+   * Generate Basic Authentication headers for JIRA API requests
+   *
+   * Uses email:token combination encoded in base64
+   * Reference: https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/
+   *
+   * @returns {Object} HTTP headers with Authorization and Content-Type
+   */
   getHeaders() {
     const credentials = `${this.jiraUserEmail}:${this.jiraAccessToken}`;
     const encodedCredentials = Buffer.from(credentials).toString('base64');
@@ -18,7 +43,24 @@ class JiraService {
     };
   }
 
+  /**
+   * Retrieve detailed information about a JIRA issue/ticket
+   *
+   * Endpoint: GET /rest/api/3/issue/{issueIdOrKey}
+   * Reference: https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-get
+   *
+   * Returns comprehensive issue data including:
+   * - Basic info (key, summary, status, priority, assignee)
+   * - Detailed fields (description, labels, components, fix versions)
+   * - Comments and change history (when deepDetails=true)
+   * - Custom fields and workflow transitions
+   *
+   * @param {string} ticketKey - JIRA issue key (e.g., 'PROJ-123')
+   * @param {boolean} deepDetails - Include full comment history and extended details
+   * @returns {Promise<Object>} Formatted JIRA ticket details
+   */
   async getJiraTicketDetails(ticketKey, deepDetails) {
+    // Final URL: GET /rest/api/3/issue/{ticketKey}
     const url = `${this.apiBase}/issue/${ticketKey}`;
 
     try {

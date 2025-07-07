@@ -41,11 +41,33 @@ class SentryService {
     }
   }
 
+  /**
+   * List organizations available to the authenticated user
+   *
+   * Endpoint: GET /api/0/organizations/
+   * Reference: https://docs.sentry.io/api/organizations/list-your-organizations/
+   *
+   * @returns {Promise<Array>} Array of organization objects
+   */
   async getOrganizations() {
     const url = `${this.apiBase}/organizations/`;
     return await this.fetchJson(url, 'Fetching organizations');
   }
 
+  /**
+   * List projects in an organization or all accessible projects
+   *
+   * Endpoints:
+   * - GET /api/0/organizations/{organization_slug}/projects/ (organization-specific)
+   * - GET /api/0/projects/ (all accessible projects)
+   *
+   * References:
+   * - https://docs.sentry.io/api/projects/list-your-projects/
+   * - https://docs.sentry.io/api/organizations/list-an-organizations-projects/
+   *
+   * @param {string|null} organization - Organization slug (optional)
+   * @returns {Promise<Array>} Array of project objects
+   */
   async getProjects(organization = null) {
     let url;
     if (organization) {
@@ -58,6 +80,25 @@ class SentryService {
     return await this.fetchJson(url, 'Fetching projects');
   }
 
+  /**
+   * List issues in an organization with filtering and search capabilities
+   *
+   * Endpoint: GET /api/0/organizations/{organization_slug}/issues/
+   * Reference: https://docs.sentry.io/api/events/list-a-projects-issues/
+   *
+   * Supports advanced filtering:
+   * - Date ranges (start/end or statsPeriod)
+   * - Environment filtering
+   * - Project filtering
+   * - Search queries (is:unresolved, error.type, message, etc.)
+   * - Sorting options (freq, date, new, trends, user, inbox)
+   * - Pagination with cursor
+   * - Field collapse for performance optimization
+   *
+   * @param {string} organization - Organization slug
+   * @param {Object} options - Filter and search options
+   * @returns {Promise<Array>} Array of issue objects
+   */
   async getSentryIssuesList(organization, options = {}) {
     const {
       project, // Can be array of project IDs or single project ID
@@ -73,7 +114,6 @@ class SentryService {
       statsPeriod,
       groupStatsPeriod,
       query: customQuery,
-      expand,
       collapse,
       cursor,
     } = options;
@@ -162,11 +202,6 @@ class SentryService {
       }
     }
 
-    // Add expand fields if specified
-    if (expand && Array.isArray(expand) && expand.length > 0) {
-      expand.forEach(field => params.append('expand', field));
-    }
-
     // Add collapse fields if specified
     if (collapse && Array.isArray(collapse) && collapse.length > 0) {
       collapse.forEach(field => params.append('collapse', field));
@@ -181,6 +216,7 @@ class SentryService {
     params.append('shortIdLookup', '1');
 
     // Use organization-level issues endpoint
+    // URL: GET /api/0/organizations/{organization_slug}/issues/?{params}
     const url = `${this.apiBase}/organizations/${encodeURIComponent(organization)}/issues/?${params}`;
     return await this.fetchJson(url, 'Fetching issues');
   }
@@ -223,6 +259,16 @@ class SentryService {
     };
   }
 
+  /**
+   * Retrieve detailed information about a specific issue
+   *
+   * Endpoint: GET /api/0/organizations/{organization_slug}/issues/{issue_id}/
+   * Reference: https://docs.sentry.io/api/events/retrieve-an-issue/
+   *
+   * @param {string} organization - Organization slug
+   * @param {number} issueId - Numeric issue ID
+   * @returns {Promise<Object>} Issue details object
+   */
   async getIssueDetails(organization, issueId) {
     const response = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/`,
@@ -230,11 +276,32 @@ class SentryService {
     return response;
   }
 
+  /**
+   * Retrieve the latest event for a specific issue
+   *
+   * Endpoint: GET /api/0/organizations/{organization_slug}/issues/{issue_id}/events/latest/
+   * Reference: https://docs.sentry.io/api/events/retrieve-the-latest-event-for-an-issue/
+   *
+   * @param {string} organization - Organization slug
+   * @param {number} issueId - Numeric issue ID
+   * @returns {Promise<Object>} Latest event object with stack trace and context
+   */
   async getLatestEventForIssue(organization, issueId) {
     const url = `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/events/latest/`;
     return this.fetchJson(url, `Fetching latest event for issue ${issueId}`);
   }
 
+  /**
+   * List tags for a specific issue
+   *
+   * Endpoint: GET /api/0/organizations/{organization_slug}/issues/{issue_id}/tags/
+   * Reference: https://docs.sentry.io/api/events/list-an-issues-tags/
+   *
+   * @param {string} organization - Organization slug
+   * @param {number} issueId - Numeric issue ID
+   * @param {string} environment - Environment filter (optional)
+   * @returns {Promise<Array>} Array of tag objects
+   */
   async getIssueTags(organization, issueId, environment) {
     const response = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/tags/`,
@@ -249,6 +316,18 @@ class SentryService {
     return response;
   }
 
+  /**
+   * Retrieve a specific event for an issue
+   *
+   * Endpoint: GET /api/0/organizations/{organization_slug}/issues/{issue_id}/events/{event_id}/
+   * Reference: https://docs.sentry.io/api/events/retrieve-an-event-for-an-issue/
+   *
+   * @param {string} organization - Organization slug
+   * @param {string} environment - Environment filter (optional)
+   * @param {string} event_id - Event ID
+   * @param {number} issue_id - Issue ID
+   * @returns {Promise<Object>} Event object with full details
+   */
   async getIssueEvents(organization, environment, event_id, issue_id) {
     const response = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issue_id}/events/${event_id}/`,
