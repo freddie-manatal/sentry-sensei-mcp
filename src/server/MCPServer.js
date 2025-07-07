@@ -91,7 +91,7 @@ class MCPServer {
           break;
 
         case TOOL_NAMES.GET_SENTRY_ISSUES:
-          result = await sentryHandler.getIssues(toolArgs);
+          result = await sentryHandler.getSentryIssuesList(toolArgs);
           break;
 
         case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:

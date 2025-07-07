@@ -5,7 +5,13 @@ const ModelSchema = z.string().min(1, 'Model identifier is required');
 const IssueIdSchema = z.number().int().positive('Issue ID must be a positive integer');
 const ProjectIdSchema = z.string().regex(/^\d+$/, 'Project ID must be numeric string');
 const EnvironmentSchema = z.string().min(1);
-const DateStringSchema = z.string().datetime().optional();
+const DateStringSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|(\.\d{3}Z?)?)?$/,
+    'Invalid datetime format. Use YYYY-MM-DDTHH:MM:SS or YYYY-MM-DDTHH:MM:SSZ',
+  )
+  .optional();
 
 // Sentry schemas
 const SentryIssueDetailsSchema = z.object({

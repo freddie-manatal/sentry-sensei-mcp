@@ -139,7 +139,7 @@ class SentryHandler {
       throw new McpError(ErrorCode.InvalidParams, 'Organization is required for fetching issues');
     }
 
-    const issues = await sentryService.getIssues(organization, options);
+    const issues = await sentryService.getSentryIssuesList(organization, options);
     logger.info(`📊 Found ${issues.length} issues`);
 
     // Compact issues list using formatter
@@ -259,7 +259,7 @@ class SentryHandler {
   }
 
   // Get issues
-  async getIssues(args) {
+  async getSentryIssuesList(args) {
     try {
       const validatedArgs = validateSchema(SentryIssuesSchema, args, TOOL_NAMES.GET_SENTRY_ISSUES);
       const sentryService = this.createSentryService(validatedArgs);

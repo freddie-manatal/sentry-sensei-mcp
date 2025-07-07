@@ -58,7 +58,7 @@ class SentryService {
     return await this.fetchJson(url, 'Fetching projects');
   }
 
-  async getIssues(organization, options = {}) {
+  async getSentryIssuesList(organization, options = {}) {
     const {
       project, // Can be array of project IDs or single project ID
       dateFrom,
@@ -135,7 +135,7 @@ class SentryService {
         return dateStr ? dateStr.replace(/Z$/, '') : dateStr;
       };
 
-      params.append('start', formatDateForSentry(startDate));
+      params.f('start', formatDateForSentry(startDate));
       params.append('end', formatDateForSentry(endDate));
     }
 
