@@ -250,4 +250,8 @@ const TOOL_DEFINITIONS = [
   },
 ];
 
-module.exports = TOOL_DEFINITIONS;
+module.exports = {
+  SHARED_PROPERTIES,
+  TOOL_DEFINITIONS,
+  getCurrentDateInfo,
+};

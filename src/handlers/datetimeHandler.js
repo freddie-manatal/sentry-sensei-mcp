@@ -72,11 +72,7 @@ class DateTimeHandler {
 
     logger.info(`📊 Current date/time: ${formatted} (${resolvedTimezone})`);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `**Current Date/Time Information:**
+    return `**Current Date/Time Information:**
 
 **Primary:** ${dateInfo.currentDateTime} (${dateInfo.timezone})
 **UTC:** ${dateInfo.utcDateTime}
@@ -102,10 +98,7 @@ class DateTimeHandler {
 - All dates are provided in ${dateInfo.timezone} timezone unless specified otherwise
 
 **Full Details:**
-${JSON.stringify(dateInfo, null, 2)}`,
-        },
-      ],
-    };
+${JSON.stringify(dateInfo, null, 2)}`;
   }
 }
 

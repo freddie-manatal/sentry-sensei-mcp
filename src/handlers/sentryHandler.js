@@ -1,12 +1,6 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 const { SentryService } = require('../services/index.js');
-const {
-  Logger,
-  SentryFormatter,
-  TokenCounter,
-  ErrorHandler,
-  schemas,
-} = require('../utils/index.js');
+const { Logger, SentryFormatter, ErrorHandler, schemas } = require('../utils/index.js');
 const { TOOL_NAMES } = require('../tools/constants.js');
 
 const {
@@ -91,14 +85,7 @@ class SentryHandler {
     // Compact formatting
     const formattedOrgs = SentryFormatter.formatOrganizationsList(organizations);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(formattedOrgs, null, 2),
-        },
-      ],
-    };
+    return JSON.stringify(formattedOrgs, null, 2);
   }
 
   // Fetch projects for an organization or all projects
@@ -124,14 +111,7 @@ class SentryHandler {
       logger.info('🔧 Filtering environments to show only production environments');
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(formattedProjects, null, 2),
-        },
-      ],
-    };
+    return JSON.stringify(formattedProjects, null, 2);
   }
 
   // Fetch issues for an organization
@@ -214,25 +194,13 @@ class SentryHandler {
       annotationText = '\n\nJIRA Links: None of the issues have linked JIRA tickets.';
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Found ${
-            issues.length
-          } issues in organization "${organization}":${filterText}${annotationText}\n\nIssues:\n${JSON.stringify(
-            formattedIssues,
-            null,
-            2,
-          )}`,
-        },
-      ],
-    };
-  }
-
-  // Helper method to get token counter with model from args
-  getTokenCounter(args) {
-    return new TokenCounter(args.model);
+    return `Found ${
+      issues.length
+    } issues in organization "${organization}":${filterText}${annotationText}\n\nIssues:\n${JSON.stringify(
+      formattedIssues,
+      null,
+      2,
+    )}`;
   }
 
   // Get organizations
@@ -244,8 +212,7 @@ class SentryHandler {
         TOOL_NAMES.GET_SENTRY_ORGANIZATIONS,
       );
       const sentryService = this.createSentryService(validatedArgs);
-      const response = await this.fetchOrganizations(sentryService);
-      return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
+      return await this.fetchOrganizations(sentryService);
     } catch (error) {
       return ErrorHandler.handleError(error, TOOL_NAMES.GET_SENTRY_ORGANIZATIONS);
     }
@@ -261,13 +228,12 @@ class SentryHandler {
       );
       const sentryService = this.createSentryService(validatedArgs);
       const organization = this.getOrganization(validatedArgs);
-      const response = await this.fetchProjects(
+      return await this.fetchProjects(
         sentryService,
         organization,
         validatedArgs.onlyProduction,
         validatedArgs.preview,
       );
-      return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
     } catch (error) {
       return ErrorHandler.handleError(error, TOOL_NAMES.GET_SENTRY_PROJECTS);
     }
@@ -315,8 +281,7 @@ class SentryHandler {
         );
       }
 
-      const response = await this.fetchIssues(sentryService, organization, issueOptions);
-      return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
+      return await this.fetchIssues(sentryService, organization, issueOptions);
     } catch (error) {
       return ErrorHandler.handleError(error, TOOL_NAMES.GET_SENTRY_ISSUES);
     }
@@ -381,15 +346,7 @@ class SentryHandler {
       );
       const markdown = SentryFormatter.issueToMarkdown(formattedIssue, currentDateInfo);
 
-      const response = {
-        content: [
-          {
-            type: 'text',
-            text: `${markdown}\n\nDetailed Information:\n${JSON.stringify(formattedIssue, null, 2)}`,
-          },
-        ],
-      };
-      return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
+      return `${markdown}\n\nDetailed Information:\n${JSON.stringify(formattedIssue, null, 2)}`;
     } catch (error) {
       return ErrorHandler.handleError(error, TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS);
     }
