@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.5.0...v1.6.0) (2025-07-09)
+
+
+### Features
+
+* add JIRA issue fields retrieval and custom field extraction to JiraService and JiraFormatter ([2545405](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/2545405654875f6a8883d9db3edd80b27cc1c6b0))
+
 # [1.5.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.4.0...v1.5.0) (2025-07-07)
 
 
