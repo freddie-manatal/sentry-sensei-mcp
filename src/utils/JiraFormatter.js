@@ -120,8 +120,8 @@ class JiraFormatter {
     if (!doc || !doc.content) return '';
 
     let text = '';
-    
-    const processContent = (content) => {
+
+    const processContent = content => {
       for (const item of content) {
         if (item.type === 'paragraph' && item.content) {
           for (const contentItem of item.content) {
@@ -198,7 +198,7 @@ class JiraFormatter {
 
   static extractCustomFields(fields, fieldMappings) {
     const customFields = [];
-    
+
     Object.keys(fields).forEach(fieldId => {
       if (fieldId.startsWith('customfield_')) {
         const fieldInfo = fieldMappings[fieldId];
@@ -208,65 +208,67 @@ class JiraFormatter {
           if (!this.INCLUDED_CUSTOM_FIELDS.includes(fieldInfo.name)) {
             return;
           }
-          
+
           const value = this.formatCustomFieldValue(fields[fieldId], fieldInfo);
           if (value) {
             customFields.push({
               id: fieldId,
               name: fieldInfo.name,
-              value: value
+              value: value,
             });
           }
         }
       }
     });
-    
+
     return customFields;
   }
 
   static formatCustomFieldValue(fieldValue, _fieldInfo) {
     if (!fieldValue) return null;
-    
+
     if (fieldValue.type === 'doc' && fieldValue.content) {
       return this.extractTextFromDocument(fieldValue);
     }
-    
+
     if (typeof fieldValue === 'string') {
       return fieldValue;
     }
-    
+
     if (typeof fieldValue === 'object' && fieldValue.value) {
       return fieldValue.value;
     }
-    
+
     if (typeof fieldValue === 'object' && fieldValue.displayName) {
       return fieldValue.displayName;
     }
-    
+
     if (Array.isArray(fieldValue)) {
-      return fieldValue.map(item => {
-        if (typeof item === 'object') {
-          // Handle sprint objects with id, name, state, etc.
-          if (item.name && item.state) {
-            return `${item.name} (${item.state})`;
+      return fieldValue
+        .map(item => {
+          if (typeof item === 'object') {
+            // Handle sprint objects with id, name, state, etc.
+            if (item.name && item.state) {
+              return `${item.name} (${item.state})`;
+            }
+            // Handle objects with value property
+            if (item.value) {
+              return item.value;
+            }
+            // Handle objects with displayName property
+            if (item.displayName) {
+              return item.displayName;
+            }
+            // Handle objects with name property
+            if (item.name) {
+              return item.name;
+            }
           }
-          // Handle objects with value property
-          if (item.value) {
-            return item.value;
-          }
-          // Handle objects with displayName property
-          if (item.displayName) {
-            return item.displayName;
-          }
-          // Handle objects with name property
-          if (item.name) {
-            return item.name;
-          }
-        }
-        return item;
-      }).join(', ');
+          return item;
+        })
+        .join(', ');
     }
-    
+
     return JSON.stringify(fieldValue);
   }
 }

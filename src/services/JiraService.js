@@ -77,17 +77,17 @@ class JiraService {
     if (!this.fieldMappings) {
       const fields = await this.getJiraIssueFields();
       this.fieldMappings = {};
-      
+
       fields.forEach(field => {
         this.fieldMappings[field.id] = {
           name: field.name,
           key: field.key,
           custom: field.custom,
-          schema: field.schema
+          schema: field.schema,
         };
       });
     }
-    
+
     return this.fieldMappings;
   }
   /**
@@ -129,7 +129,12 @@ class JiraService {
 
       const json = await response.json();
       const fieldMappings = await this.getFieldMappings();
-      return JiraFormatter.formatJiraResponse(json, this.atlassianDomain, deepDetails, fieldMappings);
+      return JiraFormatter.formatJiraResponse(
+        json,
+        this.atlassianDomain,
+        deepDetails,
+        fieldMappings,
+      );
     } catch (error) {
       if (error.name === 'AbortError') {
         throw new Error(`JIRA API request timed out after 15 seconds for ticket: ${ticketKey}`);
