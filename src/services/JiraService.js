@@ -23,6 +23,7 @@ class JiraService {
     this.jiraUserEmail = jiraUserEmail;
     this.atlassianDomain = atlassianDomain;
     this.apiBase = `https://${atlassianDomain}/rest/api/3`;
+    this.fieldMappings = null;
   }
 
   /**
@@ -43,6 +44,52 @@ class JiraService {
     };
   }
 
+  async getJiraIssueFields() {
+    // URL: GET /rest/api/3/field
+    const url = `${this.apiBase}/field`;
+    try {
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      const response = await fetch(url, {
+        headers: this.getHeaders(),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`JIRA API Error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('JIRA API request timed out after 15 seconds');
+      }
+      throw new Error(`Failed to fetch JIRA issue fields: ${error.message}`);
+    }
+  }
+
+  async getFieldMappings() {
+    if (!this.fieldMappings) {
+      const fields = await this.getJiraIssueFields();
+      this.fieldMappings = {};
+      
+      fields.forEach(field => {
+        this.fieldMappings[field.id] = {
+          name: field.name,
+          key: field.key,
+          custom: field.custom,
+          schema: field.schema
+        };
+      });
+    }
+    
+    return this.fieldMappings;
+  }
   /**
    * Retrieve detailed information about a JIRA issue/ticket
    *
@@ -60,7 +107,7 @@ class JiraService {
    * @returns {Promise<Object>} Formatted JIRA ticket details
    */
   async getJiraTicketDetails(ticketKey, deepDetails) {
-    // Final URL: GET /rest/api/3/issue/{ticketKey}
+    // URL: GET /rest/api/3/issue/{ticketKey}
     const url = `${this.apiBase}/issue/${ticketKey}`;
 
     try {
@@ -81,7 +128,8 @@ class JiraService {
       }
 
       const json = await response.json();
-      return JiraFormatter.formatJiraResponse(json, this.atlassianDomain, deepDetails);
+      const fieldMappings = await this.getFieldMappings();
+      return JiraFormatter.formatJiraResponse(json, this.atlassianDomain, deepDetails, fieldMappings);
     } catch (error) {
       if (error.name === 'AbortError') {
         throw new Error(`JIRA API request timed out after 15 seconds for ticket: ${ticketKey}`);

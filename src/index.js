@@ -20,13 +20,13 @@ function getArgValue(argName) {
 
 // Check for version flag
 if (args.includes('--version') || args.includes('-v')) {
-  console.log(`Sentry Sensei MCP Server v${getVersion()}`);
+  logger.log(`Sentry Sensei MCP Server v${getVersion()}`);
   process.exit(0);
 }
 
 // Check for help flag
 if (args.includes('--help') || args.includes('-h')) {
-  console.log(`
+  logger.log(`
 Sentry Sensei MCP Server v${getVersion()}
 
 Usage: sentry-sensei [options]

@@ -1,8 +1,37 @@
 class JiraFormatter {
+  static INCLUDED_CUSTOM_FIELDS = [
+    'Acceptance Criteria',
+    'Action Plan',
+    'Deliverables',
+    'Epic Link',
+    'Start Date',
+    'Due Date',
+    'Story Points',
+    'Epic Link',
+    'Team',
+    'Flagged',
+    'Time to investigate',
+    'Time to bugs/issues fixed',
+    'Time To Resolution SLA (Negotiated)',
+    'Time to Investigate SLA (Actual)',
+    'Time to Data Migration Implementation',
+    'Test Case',
+    'Additional Test Scope',
+    'Labels',
+    'Sprint',
+    'Step to Reproduce',
+    'Expected Results',
+    'Actual Results',
+    'Sprint',
+    'Squad',
+    'Design',
+    'Atlassian project status',
+  ];
+
   /**
    * Format raw JIRA API response into structured data
    */
-  static formatJiraResponse(data, atlassianDomain, deepDetails) {
+  static formatJiraResponse(data, atlassianDomain, deepDetails, fieldMappings = {}) {
     const fields = data.fields || {};
 
     const summary = fields.summary || 'No summary available';
@@ -26,6 +55,7 @@ class JiraFormatter {
           body: c.body ? c.body.slice(0, 200) : 'No comment body', // Reduced from 300 to 200
         }));
 
+    const customFields = this.extractCustomFields(fields, fieldMappings);
     return {
       key: data.key,
       summary,
@@ -39,6 +69,7 @@ class JiraFormatter {
       updated,
       timeSpent,
       recentComments,
+      customFields,
       url: `https://${atlassianDomain}/browse/${data.key}`,
     };
   }
@@ -72,6 +103,13 @@ class JiraFormatter {
       response += 'No recent comments found.\n';
     }
 
+    if (data.customFields && data.customFields.length > 0) {
+      response += '\nCustom Fields:\n';
+      data.customFields.forEach(field => {
+        response += `${field.name}: ${field.value}\n`;
+      });
+    }
+
     return response;
   }
 
@@ -82,16 +120,35 @@ class JiraFormatter {
     if (!doc || !doc.content) return '';
 
     let text = '';
-    for (const item of doc.content) {
-      if (item.type === 'paragraph' && item.content) {
-        for (const contentItem of item.content) {
-          if (contentItem.type === 'text' && contentItem.text) {
-            text += `${contentItem.text} `;
+    
+    const processContent = (content) => {
+      for (const item of content) {
+        if (item.type === 'paragraph' && item.content) {
+          for (const contentItem of item.content) {
+            if (contentItem.type === 'text' && contentItem.text) {
+              text += `${contentItem.text} `;
+            }
           }
+          text += '\n';
+        } else if (item.type === 'bulletList' && item.content) {
+          for (const listItem of item.content) {
+            if (listItem.type === 'listItem' && listItem.content) {
+              text += '• ';
+              processContent(listItem.content);
+            }
+          }
+        } else if (item.type === 'orderedList' && item.content) {
+          item.content.forEach((listItem, index) => {
+            if (listItem.type === 'listItem' && listItem.content) {
+              text += `${index + 1}. `;
+              processContent(listItem.content);
+            }
+          });
         }
-        text += '\n';
       }
-    }
+    };
+
+    processContent(doc.content);
     return text.trim();
   }
 
@@ -137,6 +194,80 @@ class JiraFormatter {
         };
       })
       .reverse();
+  }
+
+  static extractCustomFields(fields, fieldMappings) {
+    const customFields = [];
+    
+    Object.keys(fields).forEach(fieldId => {
+      if (fieldId.startsWith('customfield_')) {
+        const fieldInfo = fieldMappings[fieldId];
+
+        if (fieldInfo && fieldInfo.custom) {
+          // Only include fields that are in the whitelist
+          if (!this.INCLUDED_CUSTOM_FIELDS.includes(fieldInfo.name)) {
+            return;
+          }
+          
+          const value = this.formatCustomFieldValue(fields[fieldId], fieldInfo);
+          if (value) {
+            customFields.push({
+              id: fieldId,
+              name: fieldInfo.name,
+              value: value
+            });
+          }
+        }
+      }
+    });
+    
+    return customFields;
+  }
+
+  static formatCustomFieldValue(fieldValue, _fieldInfo) {
+    if (!fieldValue) return null;
+    
+    if (fieldValue.type === 'doc' && fieldValue.content) {
+      return this.extractTextFromDocument(fieldValue);
+    }
+    
+    if (typeof fieldValue === 'string') {
+      return fieldValue;
+    }
+    
+    if (typeof fieldValue === 'object' && fieldValue.value) {
+      return fieldValue.value;
+    }
+    
+    if (typeof fieldValue === 'object' && fieldValue.displayName) {
+      return fieldValue.displayName;
+    }
+    
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.map(item => {
+        if (typeof item === 'object') {
+          // Handle sprint objects with id, name, state, etc.
+          if (item.name && item.state) {
+            return `${item.name} (${item.state})`;
+          }
+          // Handle objects with value property
+          if (item.value) {
+            return item.value;
+          }
+          // Handle objects with displayName property
+          if (item.displayName) {
+            return item.displayName;
+          }
+          // Handle objects with name property
+          if (item.name) {
+            return item.name;
+          }
+        }
+        return item;
+      }).join(', ');
+    }
+    
+    return JSON.stringify(fieldValue);
   }
 }
 
