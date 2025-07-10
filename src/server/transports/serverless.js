@@ -1,6 +1,9 @@
 const { MCPServer } = require('../MCPServer.js');
 const { Logger } = require('../../utils/index.js');
 
+// Note: Keep using MCPServer for serverless compatibility
+// FastMCP's HTTP streaming is not suitable for serverless environments
+
 /**
  * Serverless transport implementation for MCP server
  * Compatible with Netlify Functions, Vercel, AWS Lambda, etc.

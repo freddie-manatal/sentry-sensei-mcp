@@ -1,6 +1,6 @@
 const { McpError, ErrorCode } = require('@modelcontextprotocol/sdk/types.js');
 const { JiraService } = require('../services/index.js');
-const { Logger, JiraFormatter, TokenCounter, ErrorHandler, schemas } = require('../utils/index.js');
+const { Logger, JiraFormatter, ErrorHandler, schemas } = require('../utils/index.js');
 const { TOOL_NAMES } = require('../tools/constants.js');
 const { JiraTicketDetailsSchema, validateSchema } = schemas;
 
@@ -12,11 +12,6 @@ class JiraHandler {
     this.token = token;
     this.email = email;
     this.logger = new Logger(process.env.LOG_LEVEL || 'INFO');
-  }
-
-  // Helper method to get token counter with model from args
-  getTokenCounter(args) {
-    return new TokenCounter(args.model);
   }
 
   // Helper methods
@@ -71,14 +66,7 @@ class JiraHandler {
       const { ticketKey, deepDetails } = validatedArgs;
 
       if (!ticketKey) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: 'Error: JIRA ticket key is required (e.g., "MAN-1234", "BUG-4774")',
-            },
-          ],
-        };
+        return 'Error: JIRA ticket key is required (e.g., "MAN-1234", "BUG-4774")';
       }
 
       const jiraService = this.createJiraService();
@@ -89,26 +77,10 @@ class JiraHandler {
 
       const formattedResponse = JiraFormatter.formatJiraTicketResponse(result);
       if (!formattedResponse) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error: Failed to format JIRA ticket ${ticketKey}. The ticket may be empty or corrupted.`,
-            },
-          ],
-        };
+        return `Error: Failed to format JIRA ticket ${ticketKey}. The ticket may be empty or corrupted.`;
       }
 
-      const response = {
-        content: [
-          {
-            type: 'text',
-            text: formattedResponse,
-          },
-        ],
-      };
-
-      return this.getTokenCounter(validatedArgs).addTokenCounts(response, validatedArgs);
+      return formattedResponse;
     } catch (error) {
       return ErrorHandler.handleError(error, TOOL_NAMES.GET_JIRA_TICKET_DETAILS);
     }

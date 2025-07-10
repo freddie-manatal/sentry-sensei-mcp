@@ -55,14 +55,7 @@ class ErrorHandler {
   static createValidationErrorResponse(error, toolName) {
     logger.error(`Validation error in ${toolName}:`, error.message);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `❌ Invalid parameters for ${toolName}:\n\n${error.message}\n\nPlease check your input parameters and try again.`,
-        },
-      ],
-    };
+    return `❌ Invalid parameters for ${toolName}:\n\n${error.message}\n\nPlease check your input parameters and try again.`;
   }
 
   /**
@@ -75,70 +68,28 @@ class ErrorHandler {
     // Handle different types of API errors
     switch (error.statusCode || error.status) {
       case 400:
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `❌ Bad Request: Invalid parameters sent to ${service}.\n\nDetails: ${error.message}\n\nPlease check your parameters and try again.`,
-            },
-          ],
-        };
+        return `❌ Bad Request: Invalid parameters sent to ${service}.\n\nDetails: ${error.message}\n\nPlease check your parameters and try again.`;
 
       case 401:
       case 403:
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `🔐 Authentication failed with ${service}.\n\nDetails: ${error.message}\n\nPlease check your API credentials and permissions.`,
-            },
-          ],
-        };
+        return `🔐 Authentication failed with ${service}.\n\nDetails: ${error.message}\n\nPlease check your API credentials and permissions.`;
 
       case 404:
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `🔍 Resource not found in ${service}.\n\nDetails: ${error.message}\n\nPlease verify the ID/key exists and you have access to it.`,
-            },
-          ],
-        };
+        return `🔍 Resource not found in ${service}.\n\nDetails: ${error.message}\n\nPlease verify the ID/key exists and you have access to it.`;
 
       case 429:
         const retryMessage = error.retryAfter
           ? `\n\nTry again in ${error.retryAfter} seconds.`
           : '\n\nPlease try again later.';
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `⏳ Rate limit exceeded for ${service}.${retryMessage}\n\nDetails: ${error.message}`,
-            },
-          ],
-        };
+        return `⏳ Rate limit exceeded for ${service}.${retryMessage}\n\nDetails: ${error.message}`;
 
       case 500:
       case 502:
       case 503:
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `🚨 ${service} server error (${error.statusCode || 'Unknown'}).\n\nDetails: ${error.message}\n\nThe service may be temporarily unavailable. Please try again later.`,
-            },
-          ],
-        };
+        return `🚨 ${service} server error (${error.statusCode || 'Unknown'}).\n\nDetails: ${error.message}\n\nThe service may be temporarily unavailable. Please try again later.`;
 
       default:
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `❌ ${service} request failed.\n\nDetails: ${error.message}\n\nPlease check your parameters and try again.`,
-            },
-          ],
-        };
+        return `❌ ${service} request failed.\n\nDetails: ${error.message}\n\nPlease check your parameters and try again.`;
     }
   }
 
@@ -148,14 +99,7 @@ class ErrorHandler {
   static createGeneralErrorResponse(error, toolName) {
     logger.error(`Unexpected error in ${toolName}:`, error);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `❌ An unexpected error occurred in ${toolName}.\n\nDetails: ${error.message}\n\nPlease try again or contact support if the issue persists.`,
-        },
-      ],
-    };
+    return `❌ An unexpected error occurred in ${toolName}.\n\nDetails: ${error.message}\n\nPlease try again or contact support if the issue persists.`;
   }
 
   /**
