@@ -1,6 +1,6 @@
 {
   "name": "@freddie-manatal/sentry-sensei-mcp",
-  "version": "1.7.0-alpha-fastmcp.2",
+  "version": "1.7.0",
   "description": "MCP server for generating Sentry error reports with JIRA integration",
   "main": "src/index.js",
   "repository": {

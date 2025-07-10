@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.6.0...v1.7.0) (2025-07-10)
+
+
+### Features
+
+* Integrate FastMCP server ([#9](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/9)) ([9754707](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/9754707ecb6a77269b48290098b351cd80aa59af))
+
 # [1.7.0-alpha-fastmcp.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0-alpha-fastmcp.1...v1.7.0-alpha-fastmcp.2) (2025-07-09)
 
 
