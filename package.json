@@ -1,6 +1,6 @@
 {
   "name": "@freddie-manatal/sentry-sensei-mcp",
-  "version": "1.9.0-update-readme.4",
+  "version": "1.9.0-update-readme.5",
   "description": "MCP server for generating Sentry error reports with JIRA integration",
   "main": "src/index.js",
   "repository": {

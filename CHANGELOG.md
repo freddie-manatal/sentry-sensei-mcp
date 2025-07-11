@@ -1,3 +1,12 @@
+# [1.9.0-update-readme.5](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.4...v1.9.0-update-readme.5) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove conditional check for main branch in release job ([9ebfe16](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/9ebfe1631bd9601f3aae71819fb7688a0c8cd336))
+* Update job dependencies in release workflow to ensure proper execution order ([a503cd8](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/a503cd8670e85240d1c710ea916a0e79ef654d7b))
+* Update release workflow and remove prepublishOnly script from package.json ([3edef41](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/3edef411376c4563644c70729ab850f5637d4e15))
+
 # [1.9.0-update-readme.4](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.3...v1.9.0-update-readme.4) (2025-07-11)
 
 
