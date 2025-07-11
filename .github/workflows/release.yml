@@ -10,6 +10,8 @@ permissions:
   issues: write
   pull-requests: write
   id-token: write
+  deployments: write
+  statuses: write
 
 jobs:
   release:
@@ -45,8 +47,12 @@ jobs:
         with:
           publish-dir: 'docs/build'
           production-deploy: true
+          production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: 'Deploy from GitHub Actions'
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
           functions-dir: 'netlify/functions'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -61,40 +67,11 @@ jobs:
           production-deploy: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: 'Deploy from GitHub Actions'
+          alias: pr-${{ github.event.number }}--sentry-sensei-mcp
           functions-dir: 'netlify/functions'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-      - name: Comment on PR
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const deployUrl = '${{ steps.netlify-preview.outputs.deploy-url }}';
-            const mcpUrl = `${deployUrl}/mcp`;
-
-            const comment = `## 🚀 Deployment Ready!
-
-            Your changes have been successfully deployed to Netlify:
-
-            ### 📖 Documentation
-            [**View Documentation**](${deployUrl})
-
-            ### ⚡ MCP Server
-            [**Test MCP Functions**](${mcpUrl})
-
-            ---
-
-            > **Note:** This is a preview deployment for PR #${{ github.event.number }}. 
-            > The deployment will be available until the PR is merged or closed.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
 
       - name: Deployment Complete
         if: success()
