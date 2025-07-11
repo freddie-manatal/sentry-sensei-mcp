@@ -130,7 +130,9 @@ The server will be available at `http://localhost:3000/mcp`
 - **get_sentry_projects** - List projects for an organization
 - **get_sentry_issues** - Get issues with filtering options
 - **get_sentry_issue_details**- Get issues details
-- **get_jira_ticket_details** - Get detailed JIRA ticket information
+- **get_jira_issue_details** - Get detailed JIRA ticket information
+- **get_jira_fields** - Get available fields for JIRA tickets with filtering options
+- **edit_jira_issue** - Update JIRA ticket fields
 
 ## Usage in LLM
 
@@ -187,7 +189,7 @@ Once configured, you can ask your LLM (e.g., Claude) to perform a wide range of 
   > "Show Sentry issues from project 'backend' that have linked JIRA tickets"
   >
 
-### JIRA Ticket Details
+### JIRA Ticket Operations
 
 - **Get details for a specific JIRA ticket**
 
@@ -200,6 +202,16 @@ Once configured, you can ask your LLM (e.g., Claude) to perform a wide range of 
 - **Get full summary, assignee, and attachments for a JIRA ticket**
 
   > "Show full details for JIRA ticket TASK-789, including assignee and attachments"
+  >
+- **Get available fields for a JIRA ticket (optimized for updates)**
+
+  > "Show me the available fields for JIRA ticket PROJ-123"
+  > "Show only summary, assignee, and priority fields for JIRA ticket PROJ-123"
+  >
+- **Update JIRA ticket fields**
+
+  > "Update JIRA ticket PROJ-123 to set assignee to 'john.doe@company.com' and priority to 'High'"
+  > "Change the summary of JIRA ticket PROJ-123 to 'Updated task summary'"
   >
 
 ### Advanced/Combined Examples

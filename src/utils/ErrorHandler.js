@@ -97,7 +97,14 @@ class ErrorHandler {
    * Create standardized error response for general errors
    */
   static createGeneralErrorResponse(error, toolName) {
-    logger.error(`Unexpected error in ${toolName}:`, error);
+    // Log error details properly
+    logger.error(`Unexpected error in ${toolName}:`, {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      ...(error.statusCode && { statusCode: error.statusCode }),
+      ...(error.status && { status: error.status }),
+    });
 
     return `❌ An unexpected error occurred in ${toolName}.\n\nDetails: ${error.message}\n\nPlease try again or contact support if the issue persists.`;
   }

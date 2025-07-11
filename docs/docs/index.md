@@ -131,7 +131,9 @@ The server will be available at `http://localhost:3000/mcp`
 - **get_sentry_projects** - List projects for an organization
 - **get_sentry_issues** - Get issues with filtering options
 - **get_sentry_issue_details**- Get issues details
-- **get_jira_ticket_details** - Get detailed JIRA ticket information
+- **get_jira_issue_details** - Get detailed JIRA ticket information
+- **get_jira_fields** - Get available fields for JIRA tickets (with filtering for specific fields)
+- **edit_jira_issue** - Update JIRA ticket fields
 
 ## Usage Examples
 
@@ -148,11 +150,15 @@ The server will be available at `http://localhost:3000/mcp`
 - "Show Sentry issues from the last 7 days for project 'api-server'"
 - "Show Sentry issues with error message containing 'TypeError' in project 'webapp'"
 
-### JIRA Ticket Details
+### JIRA Ticket Operations
 
 - "Get details for JIRA ticket PROJ-123"
 - "Show me the latest comments and status for JIRA ticket BUG-4567"
 - "Show full details for JIRA ticket TASK-789, including assignee and attachments"
+- "Show me the available fields for JIRA ticket PROJ-123" (optimized field listing)
+- "Show only summary, assignee, and priority fields for JIRA ticket PROJ-123" (specific field filtering)
+- "Update JIRA ticket PROJ-123 to set assignee to 'john.doe@company.com' and priority to 'High'"
+- "Change the summary of JIRA ticket PROJ-123 to 'Updated task summary'"
 
 ## Architecture
 

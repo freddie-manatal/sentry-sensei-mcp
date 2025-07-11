@@ -3,18 +3,22 @@ const TOOL_NAMES = {
   GET_SENTRY_ORGANIZATIONS: 'get_sentry_organizations',
   GET_SENTRY_PROJECTS: 'get_sentry_projects',
   GET_SENTRY_ISSUES: 'get_sentry_issues',
-  GET_JIRA_TICKET_DETAILS: 'get_jira_ticket_details',
   GET_CURRENT_DATETIME: 'get_current_datetime',
   GET_SENTRY_ISSUE_DETAILS: 'get_sentry_issue_details',
+  GET_JIRA_ISSUE_DETAILS: 'get_jira_issue_details',
+  GET_JIRA_FIELDS: 'get_jira_fields',
+  EDIT_JIRA_ISSUE: 'edit_jira_issue',
 };
 
 const ENABLED_TOOLS = [
   // TOOL_NAMES.GET_SENTRY_ORGANIZATIONS,
   TOOL_NAMES.GET_SENTRY_PROJECTS,
   TOOL_NAMES.GET_SENTRY_ISSUES,
-  TOOL_NAMES.GET_JIRA_TICKET_DETAILS,
   TOOL_NAMES.GET_CURRENT_DATETIME,
   TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS,
+  TOOL_NAMES.GET_JIRA_ISSUE_DETAILS,
+  TOOL_NAMES.GET_JIRA_FIELDS,
+  TOOL_NAMES.EDIT_JIRA_ISSUE,
 ];
 
 module.exports = { TOOL_NAMES, ENABLED_TOOLS };

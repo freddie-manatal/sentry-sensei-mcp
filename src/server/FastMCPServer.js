@@ -28,6 +28,13 @@ function convertToZodSchema(property) {
   } else if (property.type === 'array') {
     const itemSchema = convertToZodSchema(property.items);
     schema = z.array(itemSchema);
+  } else if (property.type === 'object') {
+    if (property.additionalProperties) {
+      const valueSchema = convertToZodSchema(property.additionalProperties);
+      schema = z.record(valueSchema);
+    } else {
+      schema = z.object({});
+    }
   } else if (property.oneOf) {
     const unionSchemas = property.oneOf.map(p => convertToZodSchema(p));
     schema = z.union(unionSchemas);
@@ -75,7 +82,9 @@ function convertToolDefinition(toolDef, handlers) {
   const handlerMap = {
     [TOOL_NAMES.GET_SENTRY_PROJECTS]: args => handlers.sentryHandler.getProjects(args),
     [TOOL_NAMES.GET_SENTRY_ISSUES]: args => handlers.sentryHandler.getSentryIssuesList(args),
-    [TOOL_NAMES.GET_JIRA_TICKET_DETAILS]: args => handlers.jiraHandler.getJiraTicketDetails(args),
+    [TOOL_NAMES.GET_JIRA_ISSUE_DETAILS]: args => handlers.jiraHandler.getJiraTicketDetails(args),
+    [TOOL_NAMES.GET_JIRA_FIELDS]: args => handlers.jiraHandler.getJiraFields(args),
+    [TOOL_NAMES.EDIT_JIRA_ISSUE]: args => handlers.jiraHandler.editJiraTicket(args),
     [TOOL_NAMES.GET_CURRENT_DATETIME]: args => handlers.datetimeHandler.getCurrentDateTime(args),
     [TOOL_NAMES.GET_SENTRY_ISSUE_DETAILS]: args =>
       handlers.sentryHandler.getSentryIssueDetails(args),

@@ -168,7 +168,7 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: TOOL_NAMES.GET_JIRA_TICKET_DETAILS,
+    name: TOOL_NAMES.GET_JIRA_ISSUE_DETAILS,
     description:
       'Get JIRA ticket details including summary, status, assignee, and recent comments.',
     inputSchema: {
@@ -184,6 +184,64 @@ const TOOL_DEFINITIONS = [
           description:
             'Include comprehensive ticket details and full comment history. Default: false.',
           default: false,
+        },
+      },
+      required: ['ticketKey'],
+    },
+  },
+  {
+    name: TOOL_NAMES.GET_JIRA_FIELDS,
+    description:
+      'Get available JIRA fields for an issue, including essential fields and custom fields. Use this to understand what fields are available before updating an issue.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ...SHARED_PROPERTIES,
+        ticketKey: {
+          type: 'string',
+          description: "JIRA ticket key (e.g., 'MAN-123456') to get fields for this specific issue",
+        },
+        showOnlyEditable: {
+          type: 'boolean',
+          description: 'Show only editable fields. Default: true',
+          default: true,
+        },
+        includeCustomFields: {
+          type: 'boolean',
+          description: 'Include custom fields in the response. Default: true',
+          default: true,
+        },
+        specificFields: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description:
+            'Show only specific fields by key or name (e.g., ["summary", "assignee", "customfield_12345"]). When provided, only these fields will be returned.',
+        },
+      },
+      required: ['ticketKey'],
+    },
+  },
+  {
+    name: TOOL_NAMES.EDIT_JIRA_ISSUE,
+    description:
+      'Edit JIRA issue fields. Use GET_JIRA_FIELDS first to see available fields and their current values ADF format if required.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ...SHARED_PROPERTIES,
+        ticketKey: {
+          type: 'string',
+          description: "JIRA ticket key (e.g., 'MAN-123456')",
+        },
+        fields: {
+          type: 'object',
+          description:
+            'Fields to update in the JIRA issue. Format: { "fieldName": "value" }. Use GET_JIRA_FIELDS to see available fields.',
+          additionalProperties: {
+            type: 'string',
+          },
         },
       },
       required: ['ticketKey'],

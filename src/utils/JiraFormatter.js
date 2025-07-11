@@ -78,6 +78,14 @@ class JiraFormatter {
    * Format structured JIRA data into readable text for MCP response
    */
   static formatJiraTicketResponse(data) {
+    if (!data) {
+      throw new Error('JIRA ticket data is null or undefined');
+    }
+
+    if (!data.key) {
+      throw new Error('JIRA ticket data missing required key field');
+    }
+
     let response = `JIRA Ticket Details: ${data.key}\n\n`;
 
     response += `Summary: ${data.summary}\n`;
@@ -96,7 +104,7 @@ class JiraFormatter {
     if (data.recentComments && data.recentComments.length > 0) {
       response += `Recent (${data.recentComments.length}) Comments:\n`;
       data.recentComments.forEach((comment, index) => {
-        response += `\n${index + 1}. ${comment.author} (${comment.created} at ${comment.createdTime})\n`;
+        response += `\n${index + 1}. ${comment.author} (${comment.created})\n`;
         response += `   ${comment.body}\n`;
       });
     } else {
@@ -109,6 +117,21 @@ class JiraFormatter {
         response += `${field.name}: ${field.value}\n`;
       });
     }
+
+    // Prevent excessively large responses that might cause truncation issues
+    const originalLength = response.length;
+    // if (response.length > 8000) {
+    //   response = response.slice(0, 8000) + '\n\n... (Response truncated for length)';
+    // }
+
+    console.info('JIRA formatted text response:', {
+      ticketKey: data.key,
+      originalLength: originalLength,
+      finalLength: response.length,
+      wasTruncated: false,
+      hasComments: (data.recentComments?.length || 0) > 0,
+      hasCustomFields: (data.customFields?.length || 0) > 0,
+    });
 
     return response;
   }
@@ -201,22 +224,43 @@ class JiraFormatter {
 
     Object.keys(fields).forEach(fieldId => {
       if (fieldId.startsWith('customfield_')) {
-        const fieldInfo = fieldMappings[fieldId];
+        const fieldValue = fields[fieldId];
 
-        if (fieldInfo && fieldInfo.custom) {
-          // Only include fields that are in the whitelist
+        // Skip null, empty, or meaningless values
+        if (
+          !fieldValue ||
+          fieldValue === '' ||
+          fieldValue === '{}' ||
+          (Array.isArray(fieldValue) && fieldValue.length === 0)
+        ) {
+          return;
+        }
+
+        const fieldInfo = fieldMappings[fieldId];
+        let fieldName = fieldId; // Fallback to field ID
+
+        if (fieldInfo && fieldInfo.name) {
+          fieldName = fieldInfo.name;
+          // Only include named fields that are in the whitelist
           if (!this.INCLUDED_CUSTOM_FIELDS.includes(fieldInfo.name)) {
             return;
           }
-
-          const value = this.formatCustomFieldValue(fields[fieldId], fieldInfo);
-          if (value) {
-            customFields.push({
-              id: fieldId,
-              name: fieldInfo.name,
-              value: value,
-            });
+        } else {
+          // For fields without mapping, include only if they have substantial content
+          const valueString = this.formatCustomFieldValue(fieldValue, null);
+          if (!valueString || valueString.length < 10) {
+            return;
           }
+          fieldName = `Custom Field ${fieldId.replace('customfield_', '')}`;
+        }
+
+        const value = this.formatCustomFieldValue(fieldValue, fieldInfo);
+        if (value && value.length > 0) {
+          customFields.push({
+            id: fieldId,
+            name: fieldName,
+            value: value,
+          });
         }
       }
     });
