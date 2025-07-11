@@ -1,3 +1,11 @@
+# [1.9.0-update-readme.4](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.3...v1.9.0-update-readme.4) (2025-07-11)
+
+
+### Bug Fixes
+
+* "revert: Update permissions in release workflow to restrict access" ([f6ab7cf](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/f6ab7cf17d7461a109a89b99fa488f74b98eb71d))
+* Update permissions in release workflow to restrict access ([9a55686](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/9a55686326a8dbb4f8140b95b9b194842165d7c2))
+
 # [1.9.0-update-readme.3](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.2...v1.9.0-update-readme.3) (2025-07-11)
 
 
