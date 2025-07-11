@@ -1,3 +1,10 @@
+# [1.9.0-update-readme.8](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.7...v1.9.0-update-readme.8) (2025-07-11)
+
+
+### Bug Fixes
+
+* Add netlify-config-path to Netlify deployment steps for consistency ([35b3fe8](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/35b3fe8896bcc12bc5c59f56224ebdf6015067a9))
+
 # [1.9.0-update-readme.7](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.6...v1.9.0-update-readme.7) (2025-07-11)
 
 
