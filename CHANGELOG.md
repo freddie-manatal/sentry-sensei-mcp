@@ -1,3 +1,15 @@
+# [1.9.0-update-readme.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.8.0...v1.9.0-update-readme.1) (2025-07-11)
+
+
+### Bug Fixes
+
+* Correct formatting in release workflow and reorder build docs step ([bf1b9b6](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/bf1b9b6438682e0365ad46772593e9b6423be43a))
+
+
+### Features
+
+* Add initial documentation for Sentry Sensei MCP with setup instructions and available tools ([935e61e](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/935e61eb5c27e0775e515a0b3418ecf29d50b3ac))
+
 # [1.8.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0...v1.8.0) (2025-07-11)
 
 
