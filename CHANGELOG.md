@@ -1,3 +1,75 @@
+# [1.9.0-update-readme.9](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.8...v1.9.0-update-readme.9) (2025-07-11)
+
+
+### Bug Fixes
+
+* Add pull_request trigger to workflow for better event handling ([f505d0c](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/f505d0c4441140cc637b9a52300360aa323d49fe))
+
+# [1.9.0-update-readme.8](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.7...v1.9.0-update-readme.8) (2025-07-11)
+
+
+### Bug Fixes
+
+* Add netlify-config-path to Netlify deployment steps for consistency ([35b3fe8](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/35b3fe8896bcc12bc5c59f56224ebdf6015067a9))
+
+# [1.9.0-update-readme.7](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.6...v1.9.0-update-readme.7) (2025-07-11)
+
+
+### Bug Fixes
+
+* Refactor build and deploy jobs in release workflow for clarity and efficiency ([1ab75be](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/1ab75be7371cf0382ef669321ee3a3a15bdd0cf5))
+* Update build_docs job dependencies to include release job ([c85439f](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/c85439ff7cfb5d08b4c767f62b6ac4c2fbca0786))
+
+# [1.9.0-update-readme.6](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.5...v1.9.0-update-readme.6) (2025-07-11)
+
+
+### Bug Fixes
+
+* Simplify deployment conditions in Netlify steps by removing matrix strategy ([b61b58a](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/b61b58a7d00dbb4521cd6879e333c37dbad23643))
+
+# [1.9.0-update-readme.5](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.4...v1.9.0-update-readme.5) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove conditional check for main branch in release job ([9ebfe16](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/9ebfe1631bd9601f3aae71819fb7688a0c8cd336))
+* Update job dependencies in release workflow to ensure proper execution order ([a503cd8](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/a503cd8670e85240d1c710ea916a0e79ef654d7b))
+* Update release workflow and remove prepublishOnly script from package.json ([3edef41](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/3edef411376c4563644c70729ab850f5637d4e15))
+
+# [1.9.0-update-readme.4](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.3...v1.9.0-update-readme.4) (2025-07-11)
+
+
+### Bug Fixes
+
+* "revert: Update permissions in release workflow to restrict access" ([f6ab7cf](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/f6ab7cf17d7461a109a89b99fa488f74b98eb71d))
+* Update permissions in release workflow to restrict access ([9a55686](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/9a55686326a8dbb4f8140b95b9b194842165d7c2))
+
+# [1.9.0-update-readme.3](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.2...v1.9.0-update-readme.3) (2025-07-11)
+
+
+### Bug Fixes
+
+* Update permissions and enhance Netlify deployment configuration ([a8339c2](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/a8339c23eceae3c31663e7014acf05913bc66d51))
+
+# [1.9.0-update-readme.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.1...v1.9.0-update-readme.2) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove version badge from documentation ([759da19](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/759da193328deb38274d2ebf8df0873b35689612))
+
+# [1.9.0-update-readme.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.8.0...v1.9.0-update-readme.1) (2025-07-11)
+
+
+### Bug Fixes
+
+* Correct formatting in release workflow and reorder build docs step ([bf1b9b6](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/bf1b9b6438682e0365ad46772593e9b6423be43a))
+
+
+### Features
+
+* Add initial documentation for Sentry Sensei MCP with setup instructions and available tools ([935e61e](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/935e61eb5c27e0775e515a0b3418ecf29d50b3ac))
+
 # [1.8.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0...v1.8.0) (2025-07-11)
 
 

@@ -2,6 +2,9 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+// Import package.json to get version
+import packageJson from '../package.json';
+
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
@@ -72,6 +75,11 @@ const config: Config = {
           sidebarId: 'tutorialSidebar',
           position: 'left',
           label: 'Documentation',
+        },
+        {
+          type: 'html',
+          position: 'left',
+          value: `<a href="https://github.com/freddie-manatal/sentry-sensei-mcp/releases/tag/v${packageJson.version}" target="_blank" rel="noopener noreferrer" style="text-decoration: none;"><span class="navbar__version" style="background: #CB3837; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-left: 8px;">v${packageJson.version}</span></a>`,
         },
         {
           href: 'https://github.com/freddie-manatal/sentry-sensei-mcp',

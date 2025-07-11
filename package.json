@@ -1,6 +1,6 @@
 {
   "name": "@freddie-manatal/sentry-sensei-mcp",
-  "version": "1.8.0",
+  "version": "1.9.0-update-readme.9",
   "description": "MCP server for generating Sentry error reports with JIRA integration",
   "main": "src/index.js",
   "repository": {
@@ -28,7 +28,6 @@
     "release": "semantic-release",
     "release:dry-run": "semantic-release --dry-run",
     "version": "echo $npm_package_version",
-    "prepublishOnly": "npm run check && npm test",
     "prepack": "npm run check"
   },
   "keywords": [

@@ -3,16 +3,20 @@ name: Release
 on:
   push:
     branches:
-      - "**"
+      - '**'
+  pull_request:
+    branches:
+      - '**'
 
 permissions:
   contents: write
-  issues: write
   pull-requests: write
+  deployments: write
+  statuses: write
   id-token: write
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,8 +34,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build docs
-        run: npm run docs:build
+      - name: Run tests
+        run: npm test
+
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Release
         env:
@@ -39,73 +62,77 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run release
 
+  build_docs:
+    runs-on: ubuntu-latest
+    needs: [test, release]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Documentation
+        run: npm run docs:build
+
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-artifacts
+          path: docs/build/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, build_docs]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-artifacts
+          path: docs/build/
+
       - name: Deploy to Netlify (Production)
-        if: success() && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: 'docs/build'
-          production-deploy: true
+          publish-dir: './docs/build'
+          production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy from GitHub Actions'
-          functions-dir: 'netlify/functions'
+          deploy-message: 'Deploy from GitHub Actions - ${{ github.event.head_commit.message }}'
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+          netlify-config-path: ./netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
 
       - name: Deploy to Netlify (Preview)
-        if: success() && github.ref != 'refs/heads/main'
+        if: github.event_name == 'pull_request'
         uses: nwtgck/actions-netlify@v3.0
-        id: netlify-preview
         with:
-          publish-dir: 'docs/build'
-          production-deploy: false
+          publish-dir: './docs/build'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy from GitHub Actions'
-          functions-dir: 'netlify/functions'
+          deploy-message: 'Deploy PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}'
+          alias: 'pr-${{ github.event.number }}'
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+          overwrites-pull-request-comment: true
+          netlify-config-path: ./netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-      - name: Comment on PR
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const deployUrl = '${{ steps.netlify-preview.outputs.deploy-url }}';
-            const mcpUrl = `${deployUrl}/mcp`;
-            
-            const comment = `## 🚀 Deployment Ready!
-
-            Your changes have been successfully deployed to Netlify:
-
-            ### 📖 Documentation
-            [**View Documentation**](${deployUrl})
-
-            ### ⚡ MCP Server
-            [**Test MCP Functions**](${mcpUrl})
-
-            ---
-            
-            > **Note:** This is a preview deployment for PR #${{ github.event.number }}. 
-            > The deployment will be available until the PR is merged or closed.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-      - name: Deployment Complete
-        if: success()
-        run: |
-          echo "🚀 Deployment completed successfully!"
-          echo "📦 NPM package published"
-          
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "🌐 Documentation deployed to production"
-            echo "⚡ Functions available at production URL"
-          else
-            echo "🌐 Documentation deployed to preview: ${{ steps.netlify-preview.outputs.deploy-url }}"
-            echo "⚡ Functions available at: ${{ steps.netlify-preview.outputs.deploy-url }}/mcp"
-          fi 
+        timeout-minutes: 2
