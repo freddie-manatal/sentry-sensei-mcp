@@ -94,7 +94,7 @@ class MCPServer {
           result = await sentryHandler.getSentryIssuesList(toolArgs);
           break;
 
-        case TOOL_NAMES.GET_JIRA_TICKET_DETAILS:
+        case TOOL_NAMES.GET_JIRA_ISSUE_DETAILS:
           this.logger.info(`🎟️ Executing JIRA ticket details: ${JSON.stringify(toolArgs)}`);
           if (!toolArgs?.ticketKey) {
             throw new McpError(
@@ -103,6 +103,28 @@ class MCPServer {
             );
           }
           result = await jiraHandler.getJiraTicketDetails(toolArgs);
+          break;
+
+        case TOOL_NAMES.GET_JIRA_FIELDS:
+          this.logger.info(`📋 Executing JIRA fields inspection: ${JSON.stringify(toolArgs)}`);
+          if (!toolArgs?.ticketKey) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              'ticketKey is required for JIRA fields inspection',
+            );
+          }
+          result = await jiraHandler.getJiraFields(toolArgs);
+          break;
+
+        case TOOL_NAMES.EDIT_JIRA_ISSUE:
+          this.logger.info(`✏️ Executing JIRA ticket edit: ${JSON.stringify(toolArgs)}`);
+          if (!toolArgs?.ticketKey) {
+            throw new McpError(
+              ErrorCode.InvalidParams,
+              'ticketKey is required for JIRA ticket edit',
+            );
+          }
+          result = await jiraHandler.editJiraTicket(toolArgs);
           break;
 
         case TOOL_NAMES.GET_CURRENT_DATETIME:
@@ -123,7 +145,23 @@ class MCPServer {
       const elapsed = Date.now() - startTime;
       this.logger.info(`✅ Tool ${toolName} completed successfully in ${elapsed}ms`);
 
-      return result;
+      // Ensure MCP tool response format
+      const toolResponse = {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+
+      console.info('MCP Server: Returning tool response:', {
+        hasContent: !!toolResponse.content,
+        contentLength: toolResponse.content[0]?.text?.length || 0,
+        contentType: typeof result,
+      });
+
+      return toolResponse;
     } catch (error) {
       const elapsed = Date.now() - startTime;
       this.logger.error(`❌ Tool ${toolName} failed after ${elapsed}ms:`, error.message);
