@@ -1,3 +1,10 @@
+# [1.9.0-update-readme.6](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.5...v1.9.0-update-readme.6) (2025-07-11)
+
+
+### Bug Fixes
+
+* Simplify deployment conditions in Netlify steps by removing matrix strategy ([b61b58a](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/b61b58a7d00dbb4521cd6879e333c37dbad23643))
+
 # [1.9.0-update-readme.5](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.4...v1.9.0-update-readme.5) (2025-07-11)
 
 
