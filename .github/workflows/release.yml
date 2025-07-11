@@ -90,9 +90,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [test, release, build]
-    strategy:
-      matrix:
-        deployment: [production, preview]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -104,7 +101,7 @@ jobs:
           path: docs/build/
 
       - name: Deploy to Netlify (Production)
-        if: matrix.deployment == 'production' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: './docs/build'
@@ -120,8 +117,8 @@ jobs:
         timeout-minutes: 1
 
       - name: Deploy to Netlify (Preview)
-        if: matrix.deployment == 'preview' && github.event_name == 'pull_request'
         uses: nwtgck/actions-netlify@v3.0
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
         with:
           publish-dir: './docs/build'
           github-token: ${{ secrets.GITHUB_TOKEN }}
