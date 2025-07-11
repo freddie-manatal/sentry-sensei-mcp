@@ -1,7 +1,5 @@
 # Sentry Sensei MCP
 
-[![Version](https://img.shields.io/github/package-json/v/freddie-manatal/sentry-sensei-mcp?label=version)](https://github.com/freddie-manatal/sentry-sensei-mcp/releases)
-
 A Model Context Protocol (MCP) server for integrating with Sentry and JIRA APIs.
 
 ## Features
