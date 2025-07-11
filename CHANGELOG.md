@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.8.0...v1.9.0) (2025-07-11)
+
+
+### Features
+
+* Add initial documentation for Sentry Sensei MCP  ([#11](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/11)) ([6d3b592](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/6d3b5926764817b2a758d6cce666c4c4592f75eb))
+
 # [1.9.0-update-readme.9](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.8...v1.9.0-update-readme.9) (2025-07-11)
 
 
