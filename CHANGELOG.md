@@ -1,3 +1,10 @@
+# [1.9.0-update-readme.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.1...v1.9.0-update-readme.2) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove version badge from documentation ([759da19](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/759da193328deb38274d2ebf8df0873b35689612))
+
 # [1.9.0-update-readme.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.8.0...v1.9.0-update-readme.1) (2025-07-11)
 
 
