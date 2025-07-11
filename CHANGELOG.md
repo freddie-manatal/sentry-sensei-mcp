@@ -1,3 +1,10 @@
+# [1.9.0-update-readme.9](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.8...v1.9.0-update-readme.9) (2025-07-11)
+
+
+### Bug Fixes
+
+* Add pull_request trigger to workflow for better event handling ([f505d0c](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/f505d0c4441140cc637b9a52300360aa323d49fe))
+
 # [1.9.0-update-readme.8](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.7...v1.9.0-update-readme.8) (2025-07-11)
 
 
