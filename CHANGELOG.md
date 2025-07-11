@@ -1,3 +1,10 @@
+# [1.9.0-update-readme.3](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.2...v1.9.0-update-readme.3) (2025-07-11)
+
+
+### Bug Fixes
+
+* Update permissions and enhance Netlify deployment configuration ([a8339c2](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/a8339c23eceae3c31663e7014acf05913bc66d51))
+
 # [1.9.0-update-readme.2](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.1...v1.9.0-update-readme.2) (2025-07-11)
 
 
