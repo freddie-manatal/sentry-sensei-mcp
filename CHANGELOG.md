@@ -1,3 +1,10 @@
+# [1.8.0-alpha-edit-jira.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0...v1.8.0-alpha-edit-jira.1) (2025-07-11)
+
+
+### Features
+
+* Enhance JIRA integration with new fields and editing capabilities ([3d79032](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/3d7903293da81423be676373f88b2c78fdb7d259))
+
 # [1.7.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.6.0...v1.7.0) (2025-07-10)
 
 
