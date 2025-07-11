@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - "**"
+      - '**'
 
 permissions:
   contents: write
@@ -30,14 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build docs
-        run: npm run docs:build
-
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run release
+
+      - name: Build docs
+        run: npm run docs:build
 
       - name: Deploy to Netlify (Production)
         if: success() && github.ref == 'refs/heads/main'
@@ -73,7 +73,7 @@ jobs:
           script: |
             const deployUrl = '${{ steps.netlify-preview.outputs.deploy-url }}';
             const mcpUrl = `${deployUrl}/mcp`;
-            
+
             const comment = `## 🚀 Deployment Ready!
 
             Your changes have been successfully deployed to Netlify:
@@ -85,7 +85,7 @@ jobs:
             [**Test MCP Functions**](${mcpUrl})
 
             ---
-            
+
             > **Note:** This is a preview deployment for PR #${{ github.event.number }}. 
             > The deployment will be available until the PR is merged or closed.`;
 
@@ -101,11 +101,11 @@ jobs:
         run: |
           echo "🚀 Deployment completed successfully!"
           echo "📦 NPM package published"
-          
+
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "🌐 Documentation deployed to production"
             echo "⚡ Functions available at production URL"
           else
             echo "🌐 Documentation deployed to preview: ${{ steps.netlify-preview.outputs.deploy-url }}"
             echo "⚡ Functions available at: ${{ steps.netlify-preview.outputs.deploy-url }}/mcp"
-          fi 
+          fi
