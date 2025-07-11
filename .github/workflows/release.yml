@@ -111,6 +111,7 @@ jobs:
           enable-pull-request-comment: false
           enable-commit-comment: true
           overwrites-pull-request-comment: true
+          netlify-config-path: ./netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -123,10 +124,11 @@ jobs:
           publish-dir: './docs/build'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: 'Deploy PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}'
-          alias: 'pr-${{ github.event.number }}--sentry-sensei-mcp'
+          alias: 'pr-${{ github.event.number }}'
           enable-pull-request-comment: true
           enable-commit-comment: false
           overwrites-pull-request-comment: true
+          netlify-config-path: ./netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
