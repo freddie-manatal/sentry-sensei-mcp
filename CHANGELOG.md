@@ -1,3 +1,11 @@
+# [1.9.0-update-readme.7](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.6...v1.9.0-update-readme.7) (2025-07-11)
+
+
+### Bug Fixes
+
+* Refactor build and deploy jobs in release workflow for clarity and efficiency ([1ab75be](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/1ab75be7371cf0382ef669321ee3a3a15bdd0cf5))
+* Update build_docs job dependencies to include release job ([c85439f](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/c85439ff7cfb5d08b4c767f62b6ac4c2fbca0786))
+
 # [1.9.0-update-readme.6](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.9.0-update-readme.5...v1.9.0-update-readme.6) (2025-07-11)
 
 
