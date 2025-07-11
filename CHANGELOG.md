@@ -1,3 +1,11 @@
+# [1.8.0](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0...v1.8.0) (2025-07-11)
+
+
+### Features
+
+* Enhance JIRA integration with new fields and editing capabilities ([#10](https://github.com/freddie-manatal/sentry-sensei-mcp/issues/10)) ([3068545](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/3068545bf3c9c310a9575e082710b86497c6c7db))
+* Update release workflow to support all branches and simplify Netlify deployment ([e28eeb8](https://github.com/freddie-manatal/sentry-sensei-mcp/commit/e28eeb8a7dfddf2b4804416823fb41f61c484e2a))
+
 # [1.8.0-alpha-edit-jira.1](https://github.com/freddie-manatal/sentry-sensei-mcp/compare/v1.7.0...v1.8.0-alpha-edit-jira.1) (2025-07-11)
 
 
