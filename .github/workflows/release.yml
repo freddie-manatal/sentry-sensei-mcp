@@ -6,10 +6,8 @@ on:
       - '**'
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
   pull-requests: write
-  id-token: write
   deployments: write
   statuses: write
 
