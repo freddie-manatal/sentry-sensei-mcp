@@ -1,5 +1,5 @@
 [build]
-  publish = "public"
+  publish = "docs/build"
   functions = "netlify/functions"
   ignore = "exit 0"
 
