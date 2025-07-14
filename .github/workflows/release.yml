@@ -92,6 +92,11 @@ jobs:
           mkdir -p public
           cp -r docs/build/* public/
 
+      - name: Copy functions to deployment
+        run: |
+          mkdir -p netlify/functions
+          cp -r netlify/functions/* ./netlify/functions/ 2>/dev/null || echo "Functions already in place"
+
       - name: Deploy to Netlify (Production)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: nwtgck/actions-netlify@v3.0
