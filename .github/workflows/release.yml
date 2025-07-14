@@ -37,34 +37,9 @@ jobs:
       - name: Run tests
         run: npm test
 
-  release:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm run release
-
   build_docs:
     runs-on: ubuntu-latest
-    needs: [test, release]
+    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,7 +67,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [test, build_docs]
+    needs: build_docs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -103,11 +78,16 @@ jobs:
           name: docs-artifacts
           path: docs/build/
 
+      - name: Copy docs to root for Netlify
+        run: |
+          mkdir -p public
+          cp -r docs/build/* public/
+
       - name: Deploy to Netlify (Production)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: './docs/build'
+          publish-dir: './public'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: 'Deploy from GitHub Actions - ${{ github.event.head_commit.message }}'
@@ -124,7 +104,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: './docs/build'
+          publish-dir: './public'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: 'Deploy PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}'
           alias: 'pr-${{ github.event.number }}'
