@@ -78,6 +78,15 @@ jobs:
           name: docs-artifacts
           path: docs/build/
 
+      - name: Setup Node.js for deployment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies for functions
+        run: npm ci --production
+
       - name: Copy docs to root for Netlify
         run: |
           mkdir -p public
