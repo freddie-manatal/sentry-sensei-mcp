@@ -34,7 +34,7 @@ const SentryIssuesSchema = z.object({
   issue: z.string().optional(),
   excludeErrorType: z.string().optional(),
   errorMessage: z.string().optional(),
-  limit: z.number().int().min(1).max(100).default(10),
+  limit: z.number().int().min(1).max(9999).default(10),
   statsPeriod: z.string().optional(),
   dateFrom: DateStringSchema,
   dateTo: DateStringSchema,

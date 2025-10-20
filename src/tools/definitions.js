@@ -124,9 +124,9 @@ const TOOL_DEFINITIONS = [
         },
         limit: {
           type: 'integer',
-          description: 'Maximum number of issues to return (1-100). Default: 10',
+          description: 'Maximum number of issues to return (1-9999). Default: 10',
           minimum: 1,
-          maximum: 100,
+          maximum: 9999,
         },
         statsPeriod: {
           type: 'string',
