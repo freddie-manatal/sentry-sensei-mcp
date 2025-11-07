@@ -9,18 +9,15 @@
 [functions."mcp"]
   timeout = 30
 
-# API endpoints - must come before any catch-all rules
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# API endpoints - must come before Docusaurus routes
 [[redirects]]
   from = "/health"
   to = "/.netlify/functions/mcp?health"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/mcp"
   to = "/.netlify/functions/mcp"
-  status = 200 
+  status = 200
+  force = true 
