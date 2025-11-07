@@ -85,7 +85,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies for functions
-        run: npm ci --production
+        run: npm ci
 
       - name: Copy docs to root for Netlify
         run: |
@@ -104,6 +104,7 @@ jobs:
           enable-commit-comment: true
           overwrites-pull-request-comment: true
           netlify-config-path: ./netlify.toml
+          functions-dir: './netlify/functions'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -121,6 +122,7 @@ jobs:
           enable-commit-comment: false
           overwrites-pull-request-comment: true
           netlify-config-path: ./netlify.toml
+          functions-dir: './netlify/functions'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
