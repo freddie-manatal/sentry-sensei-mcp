@@ -47,13 +47,10 @@ class JiraFormatter {
     const updated = fields.updated ? new Date(fields.updated).toLocaleDateString() : 'Unknown';
     const timeSpent = fields.timespent ? this.formatTimeSpent(fields.timespent) : 'None';
 
-    // Token-optimized comments: 2 in standard mode, 5 in deep mode
+    // Comments: 5 in standard mode, all comments in deep mode
     const recentComments = deepDetails
-      ? this.getRecentComments(fields.comment, 5)
-      : (this.getRecentComments(fields.comment, 2) || []).map(c => ({
-          ...c,
-          body: c.body ? c.body.slice(0, 200) : 'No comment body', // Reduced from 300 to 200
-        }));
+      ? this.getRecentComments(fields.comment, 9999) // Get all comments
+      : this.getRecentComments(fields.comment, 5); // Get up to 5 comments
 
     const customFields = this.extractCustomFields(fields, fieldMappings);
     return {
