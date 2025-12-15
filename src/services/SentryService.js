@@ -35,10 +35,28 @@ class SentryService {
       }
 
       const json = await response.json();
-      return json;
+      const linkHeader = response.headers.get('link');
+
+      return { data: json, linkHeader };
     } catch (error) {
       throw new Error(`${description}: ${error.message}`);
     }
+  }
+
+  /**
+   * Parse Link header for pagination metadata
+   *
+   * @param {string} linkHeader - Link header from Sentry API response
+   * @returns {Object} Pagination metadata with nextCursor and hasMore
+   */
+  parseLinkHeader(linkHeader) {
+    if (!linkHeader) return { nextCursor: null, hasMore: false };
+
+    const nextMatch = linkHeader.match(/<[^>]*[?&]cursor=([^&>]+)[^>]*>;\s*rel="next"/);
+    return {
+      nextCursor: nextMatch ? nextMatch[1] : null,
+      hasMore: !!nextMatch,
+    };
   }
 
   /**
@@ -51,7 +69,8 @@ class SentryService {
    */
   async getOrganizations() {
     const url = `${this.apiBase}/organizations/`;
-    return await this.fetchJson(url, 'Fetching organizations');
+    const { data } = await this.fetchJson(url, 'Fetching organizations');
+    return data;
   }
 
   /**
@@ -77,7 +96,8 @@ class SentryService {
       // All projects the user has access to
       url = `${this.apiBase}/projects/`;
     }
-    return await this.fetchJson(url, 'Fetching projects');
+    const { data } = await this.fetchJson(url, 'Fetching projects');
+    return data;
   }
 
   /**
@@ -218,7 +238,18 @@ class SentryService {
     // Use organization-level issues endpoint
     // URL: GET /api/0/organizations/{organization_slug}/issues/?{params}
     const url = `${this.apiBase}/organizations/${encodeURIComponent(organization)}/issues/?${params}`;
-    return await this.fetchJson(url, 'Fetching issues');
+    const { data, linkHeader } = await this.fetchJson(url, 'Fetching issues');
+    const pagination = this.parseLinkHeader(linkHeader);
+
+    return {
+      issues: data,
+      pagination: {
+        cursor: options.cursor || null,
+        nextCursor: pagination.nextCursor,
+        hasMore: pagination.hasMore,
+        limit: options.limit || 10,
+      },
+    };
   }
 
   getPreviousWeekRange() {
@@ -270,10 +301,10 @@ class SentryService {
    * @returns {Promise<Object>} Issue details object
    */
   async getIssueDetails(organization, issueId) {
-    const response = await this.fetchJson(
+    const { data } = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/`,
     );
-    return response;
+    return data;
   }
 
   /**
@@ -288,7 +319,8 @@ class SentryService {
    */
   async getLatestEventForIssue(organization, issueId) {
     const url = `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/events/latest/`;
-    return this.fetchJson(url, `Fetching latest event for issue ${issueId}`);
+    const { data } = await this.fetchJson(url, `Fetching latest event for issue ${issueId}`);
+    return data;
   }
 
   /**
@@ -303,7 +335,7 @@ class SentryService {
    * @returns {Promise<Array>} Array of tag objects
    */
   async getIssueTags(organization, issueId, environment) {
-    const response = await this.fetchJson(
+    const { data } = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issueId}/tags/`,
       {
         params: {
@@ -313,7 +345,7 @@ class SentryService {
         },
       },
     );
-    return response;
+    return data;
   }
 
   /**
@@ -329,7 +361,7 @@ class SentryService {
    * @returns {Promise<Object>} Event object with full details
    */
   async getIssueEvents(organization, environment, event_id, issue_id) {
-    const response = await this.fetchJson(
+    const { data } = await this.fetchJson(
       `${this.sentryApiBase}/organizations/${organization}/issues/${issue_id}/events/${event_id}/`,
       {
         params: {
@@ -337,7 +369,7 @@ class SentryService {
         },
       },
     );
-    return response;
+    return data;
   }
 }
 

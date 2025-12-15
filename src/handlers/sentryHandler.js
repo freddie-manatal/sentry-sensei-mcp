@@ -129,7 +129,9 @@ class SentryHandler {
       throw new McpError(ErrorCode.InvalidParams, 'Organization is required for fetching issues');
     }
 
-    const issues = await sentryService.getSentryIssuesList(organization, options);
+    const result = await sentryService.getSentryIssuesList(organization, options);
+    const issues = result.issues;
+    const pagination = result.pagination;
     logger.info(`📊 Found ${issues.length} issues`);
 
     // Compact issues list using formatter
@@ -194,13 +196,19 @@ class SentryHandler {
       annotationText = '\n\nJIRA Links: None of the issues have linked JIRA tickets.';
     }
 
+    // Format pagination info
+    const paginationInfo =
+      pagination.hasMore
+        ? `\n\n--- Pagination Info ---\nCurrent Cursor: ${pagination.cursor || 'first page'}\nNext Cursor: ${pagination.nextCursor}\nHas More: ${pagination.hasMore}\nLimit: ${pagination.limit}\n\nTo fetch next page, call again with: cursor: "${pagination.nextCursor}"`
+        : '\n\n(No more pages available)';
+
     return `Found ${
       issues.length
     } issues in organization "${organization}":${filterText}${annotationText}\n\nIssues:\n${JSON.stringify(
       formattedIssues,
       null,
       2,
-    )}`;
+    )}${paginationInfo}`;
   }
 
   // Get organizations

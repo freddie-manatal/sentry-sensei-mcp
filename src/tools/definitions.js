@@ -161,7 +161,8 @@ const TOOL_DEFINITIONS = [
         },
         cursor: {
           type: 'string',
-          description: 'Pointer to the last object fetched and its sort order; used for pagination',
+          description:
+            'Pagination cursor from previous response. Sentry uses cursor-based pagination (max 100 items/request). Use the nextCursor value from a previous response to fetch the next page. Leave empty for first page.',
         },
       },
       required: [],
